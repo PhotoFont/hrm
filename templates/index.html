@@ -22,19 +22,25 @@
         .sidebar .nav-link:hover, .sidebar .nav-link.active { color: #fff; background-color: #343a40; }
         .brand-box { width: 40px; height: 40px; background-color: #fd7e14; display: flex; align-items: center; justify-content: center; font-weight: bold; color: white; border-radius: 0.375rem; font-size: 1.1rem; }
 
+        /* เพิ่มส่วนนี้เพื่อปรับสีของหัวข้อหมวดหมู่ให้สว่างและมองเห็นชัดเจน */
+        .sidebar small.text-uppercase {
+            color: #ced4da !important; /* เปลี่ยนเป็นสีเทาสว่างขึ้น */
+            letter-spacing: 0.5px;
+        }
+
         /* ปรับแต่งแถบเลื่อน (Scrollbar) ให้กลมกลืนกับ Sidebar */
         .sidebar ul::-webkit-scrollbar {
-            width: 6px; /* ความกว้างแถบเลื่อนเล็กลง */
+            width: 6px;
         }
         .sidebar ul::-webkit-scrollbar-track {
-            background: #212529; /* สีพื้นหลังรางเลื่อนให้กลืนกับสี Sidebar */
+            background: #212529;
         }
         .sidebar ul::-webkit-scrollbar-thumb {
-            background: #495057; /* สีตัวเลื่อนให้เข้มขึ้นเล็กน้อยพอมองเห็น */
+            background: #495057;
             border-radius: 3px;
         }
         .sidebar ul::-webkit-scrollbar-thumb:hover {
-            background: #6c757d; /* สีเวลาเอาเมาส์ไปชี้ */
+            background: #6c757d;
         }
     </style>
 </head>

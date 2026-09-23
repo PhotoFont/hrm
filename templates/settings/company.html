@@ -1,0 +1,156 @@
+{% extends "layout.html" %}
+
+{% block title %}ตั้งค่าข้อมูลบริษัท - Human and Resource{% endblock %}
+{% block header_title %}ตั้งค่าระบบ{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-0">
+    <h4 class="fw-bold mb-1">ตั้งค่า</h4>
+    <p class="text-muted small mb-3">ข้อมูลพื้นฐาน ผู้ใช้ สิทธิ์ และเงื่อนไขทั้งหมดของระบบรวมอยู่ที่นี่</p>
+
+    <!-- Sub Navigation Tabs -->
+    <ul class="nav nav-tabs mb-4">
+        <li class="nav-item"><a class="nav-link active fw-bold text-dark border-bottom border-3 border-orange" href="/settings/company">ข้อมูลบริษัท</a></li>
+        <li class="nav-item"><a class="nav-link text-secondary" href="#">สถานที่ทำงาน</a></li>
+        <li class="nav-item"><a class="nav-link text-secondary" href="#">ฝ่าย / แผนก</a></li>
+        <li class="nav-item"><a class="nav-link text-secondary" href="#">ตำแหน่ง</a></li>
+        <li class="nav-item"><a class="nav-link text-secondary" href="#">ฟิลด์เพิ่มเติมพนักงาน</a></li>
+    </ul>
+
+    <!-- Company Section -->
+    <div class="card border-0 shadow-sm p-4">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <div>
+                <h5 class="fw-bold mb-1">ข้อมูลบริษัท</h5>
+                <small class="text-muted">นิติบุคคลในองค์กรนี้ ใช้เป็นหัวเอกสารและข้อมูลยื่นราชการ</small>
+            </div>
+            <div class="d-flex gap-2">
+                <input type="text" class="form-control form-control-sm" placeholder="ค้นหา..." style="width: 200px;">
+                <button class="btn btn-orange btn-sm" data-bs-toggle="modal" data-bs-target="#addCompanyModal">+ เพิ่มบริษัท</button>
+            </div>
+        </div>
+
+        <div class="table-responsive">
+            <table class="table align-middle">
+                <thead class="table-light text-secondary small">
+                    <tr>
+                        <th>รหัส</th>
+                        <th>ชื่อบริษัท</th>
+                        <th>เลขผู้เสียภาษี</th>
+                        <th>เลขที่ประกันสังคม</th>
+                        <th>สถานะ</th>
+                        <th class="text-end">จัดการ</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for comp in companies %}
+                    <tr>
+                        <td class="fw-bold">{{ comp.code }}</td>
+                        <td>
+                            <div class="fw-bold">{{ comp.name_th }}</div>
+                            {% if comp.name_en %}<small class="text-muted">{{ comp.name_en }}</small>{% endif %}
+                        </td>
+                        <td>{{ comp.tax_id or '-' }}</td>
+                        <td>{{ comp.social_fund_id or '-' }}</td>
+                        <td>
+                            {% if comp.is_active %}
+                            <span class="badge bg-success bg-opacity-10 text-success px-3 py-2 rounded-pill">ใช้งาน</span>
+                            {% else %}
+                            <span class="badge bg-secondary bg-opacity-10 text-secondary px-3 py-2 rounded-pill">ปิดใช้งาน</span>
+                            {% endif %}
+                        </td>
+                        <td class="text-end">
+                            <button class="btn btn-sm btn-light border text-secondary"><i class="bi bi-pencil"></i></button>
+                            <button class="btn btn-sm btn-light border text-danger"><i class="bi bi-trash"></i></button>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Modal เพิ่มบริษัท -->
+<div class="modal fade" id="addCompanyModal" tabindex="-1">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable">
+        <div class="modal-content">
+            <form action="/settings/company/add" method="POST">
+                <div class="modal-header">
+                    <h5 class="modal-title fw-bold">เพิ่มบริษัท</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label small fw-bold">รหัสบริษัท *</label>
+                            <input type="text" class="form-control" name="code" required placeholder="เช่น DMO">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label small fw-bold">ชื่อบริษัท (ไทย) *</label>
+                            <input type="text" class="form-control" name="name_th" required placeholder="ชื่อบริษัทภาษาไทย">
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label small fw-bold">ชื่อบริษัท (อังกฤษ)</label>
+                            <input type="text" class="form-control" name="name_en" placeholder="Company Name in English">
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label small fw-bold">เลขประจำตัวผู้เสียภาษี</label>
+                            <input type="text" class="form-control" name="tax_id">
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label small fw-bold">เลขที่บัญชีประกันสังคม</label>
+                            <input type="text" class="form-control" name="social_fund_id">
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label small fw-bold">เลขที่สาขา</label>
+                            <input type="text" class="form-control" name="branch_id" value="0000">
+                        </div>
+                    </div>
+
+                    <hr class="text-muted my-4">
+                    <h6 class="fw-bold mb-3">ที่อยู่</h6>
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-3"><label class="form-label small">เลขที่</label><input type="text" class="form-control" name="address_no"></div>
+                        <div class="col-md-3"><label class="form-label small">หมู่</label><input type="text" class="form-control" name="moo"></div>
+                        <div class="col-md-3"><label class="form-label small">ซอย</label><input type="text" class="form-control" name="soi"></div>
+                        <div class="col-md-3"><label class="form-label small">ถนน</label><input type="text" class="form-control" name="road"></div>
+                        <div class="col-md-3"><label class="form-label small">ตำบล / แขวง</label><input type="text" class="form-control" name="subdistrict"></div>
+                        <div class="col-md-3"><label class="form-label small">อำเภอ / เขต</label><input type="text" class="form-control" name="district"></div>
+                        <div class="col-md-3"><label class="form-label small">จังหวัด</label><input type="text" class="form-control" name="province"></div>
+                        <div class="col-md-3"><label class="form-label small">รหัสไปรษณีย์</label><input type="text" class="form-control" name="postal_code"></div>
+                    </div>
+
+                    <hr class="text-muted my-4">
+                    <h6 class="fw-bold mb-3">การติดต่อและผู้ลงนาม</h6>
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-4"><label class="form-label small">โทรศัพท์</label><input type="text" class="form-control" name="phone"></div>
+                        <div class="col-md-4"><label class="form-label small">อีเมล</label><input type="email" class="form-control" name="email"></div>
+                        <div class="col-md-4"><label class="form-label small">เว็บไซต์</label><input type="text" class="form-control" name="website"></div>
+                        <div class="col-md-6"><label class="form-label small">ชื่อผู้ลงนาม</label><input type="text" class="form-control" name="signatory_name"></div>
+                        <div class="col-md-6"><label class="form-label small">ตำแหน่งผู้ลงนาม</label><input type="text" class="form-control" name="signatory_position"></div>
+                        <div class="col-md-6">
+                            <label class="form-label small fw-bold">รูปแบบรหัสพนักงาน</label>
+                            <input type="text" class="form-control" name="emp_code_format" value="{COMPANY}-{NNNN}">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label small fw-bold">ลำดับแสดงผล</label>
+                            <input type="number" class="form-control" name="display_order" value="0">
+                        </div>
+                        <div class="col-12 mt-3">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="is_active" value="true" checked id="isActiveCheck">
+                                <label class="form-check-label fw-bold" for="isActiveCheck">เปิดใช้งาน</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-light border" data-bs-dismiss="modal">ยกเลิก</button>
+                    <button type="submit" class="btn btn-orange">บันทึก</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

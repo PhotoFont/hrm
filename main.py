@@ -14,4 +14,4 @@ async def dashboard(request: Request):
         "request": request,
         "company_name": "บริษัท ตัวอย่าง จำกัด (องค์กรทดลอง)"
     }
-    return templates.TemplateResponse("index.html", context)
+    return templates.TemplateResponse(request, "index.html", context)

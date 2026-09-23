@@ -12,7 +12,6 @@
         body { background-color: #f8f9fa; }
         .sidebar { width: 280px; min-height: 100vh; background-color: #212529; }
         
-        /* เพิ่มส่วนนี้เพื่อบังคับให้เมนูเรียงลงมาในแนวตั้งแถวเดียว */
         .sidebar .nav {
             display: flex;
             flex-direction: column;
@@ -22,6 +21,21 @@
         .sidebar .nav-link { color: #adb5bd; padding: 0.4rem 0.8rem; font-size: 0.9rem; white-space: nowrap; }
         .sidebar .nav-link:hover, .sidebar .nav-link.active { color: #fff; background-color: #343a40; }
         .brand-box { width: 40px; height: 40px; background-color: #fd7e14; display: flex; align-items: center; justify-content: center; font-weight: bold; color: white; border-radius: 0.375rem; font-size: 1.1rem; }
+
+        /* ปรับแต่งแถบเลื่อน (Scrollbar) ให้กลมกลืนกับ Sidebar */
+        .sidebar ul::-webkit-scrollbar {
+            width: 6px; /* ความกว้างแถบเลื่อนเล็กลง */
+        }
+        .sidebar ul::-webkit-scrollbar-track {
+            background: #212529; /* สีพื้นหลังรางเลื่อนให้กลืนกับสี Sidebar */
+        }
+        .sidebar ul::-webkit-scrollbar-thumb {
+            background: #495057; /* สีตัวเลื่อนให้เข้มขึ้นเล็กน้อยพอมองเห็น */
+            border-radius: 3px;
+        }
+        .sidebar ul::-webkit-scrollbar-thumb:hover {
+            background: #6c757d; /* สีเวลาเอาเมาส์ไปชี้ */
+        }
     </style>
 </head>
 <body>

@@ -46,6 +46,26 @@
         .btn-orange { background-color: #e56728; color: white; }
         .btn-orange:hover { background-color: #cf5820; color: white; }
         .border-orange { border-color: #e56728 !important; }
+
+        .flex-grow-1::-webkit-scrollbar,
+        .modal-body::-webkit-scrollbar {
+            width: 8px;
+        }
+        .flex-grow-1::-webkit-scrollbar-track,
+        .modal-body::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 4px;
+        }
+        .flex-grow-1::-webkit-scrollbar-thumb,
+        .modal-body::-webkit-scrollbar-thumb {
+            background: #c1c1c1;
+            border-radius: 4px;
+        }
+        .flex-grow-1::-webkit-scrollbar-thumb:hover,
+        .modal-body::-webkit-scrollbar-thumb:hover {
+            background: #999;
+        }
+
     </style>
     {% block extra_css %}{% endblock %}
 </head>

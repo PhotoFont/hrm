@@ -75,12 +75,15 @@
 <div class="modal fade" id="addCompanyModal" tabindex="-1">
     <div class="modal-dialog modal-lg modal-dialog-scrollable">
         <div class="modal-content">
+            <!-- ฟอร์มส่งข้อมูลไปยัง Backend เพื่อบันทึกลง SQLite Database บนเซิร์ฟเวอร์ -->
             <form action="/settings/company/add" method="POST">
                 <div class="modal-header">
                     <h5 class="modal-title fw-bold">เพิ่มบริษัท</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
+                
                 <div class="modal-body p-4">
+                    <!-- ข้อมูลทั่วไป -->
                     <div class="row g-3 mb-3">
                         <div class="col-md-6">
                             <label class="form-label small fw-bold">รหัสบริษัท *</label>
@@ -145,9 +148,11 @@
                         </div>
                     </div>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-light border" data-bs-dismiss="modal">ยกเลิก</button>
-                    <button type="submit" class="btn btn-orange">บันทึก</button>
+
+                <!-- ส่วนปุ่ม ยกเลิก และ บันทึก อยู่ที่ด้านล่างสุดของหน้าเพิ่มบริษัท -->
+                <div class="modal-footer bg-light">
+                    <button type="button" class="btn btn-light border px-4" data-bs-dismiss="modal">ยกเลิก</button>
+                    <button type="submit" class="btn btn-orange px-4">บันทึก</button>
                 </div>
             </form>
         </div>

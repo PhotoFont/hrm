@@ -4,6 +4,7 @@ from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
 from sqlalchemy import create_engine, Column, String, Integer, Boolean, Float
 from sqlalchemy.orm import declarative_base, sessionmaker, Session
+from typing import Optional
 
 app = FastAPI(title="Human and Resource")
 templates = Jinja2Templates(directory="templates")
@@ -195,13 +196,24 @@ async def delete_company(code: str, db: Session = Depends(get_db)):
     return RedirectResponse(url="/settings/company", status_code=303)
 
 @app.get("/settings/locations", response_class=HTMLResponse)
-async def list_locations(request: Request, db: Session = Depends(SessionLocal)):
-    locations = db.query(Location).order_by(Location.display_order.asc()).all()
+async def list_locations(
+    request: Request, 
+    db: Session = Depends(SessionLocal),
+    local_kw: Optional[str] = None  # <--- เพิ่มตรงนี้เพื่อให้เป็นค่าทางเลือก ไม่บังคับส่ง
+):
+    # รองรับการค้นหา (ถ้ามีการส่งค่ามา)
+    query = db.query(Location)
+    if local_kw:
+        query = query.filter(Location.name.contains(local_kw))
+    
+    locations = query.order_by(Location.display_order.asc()).all()
     companies = db.query(Company).filter(Company.is_active == True).all() if 'Company' in globals() else []
+    
     return templates.TemplateResponse("settings/locations.html", {
         "request": request,
         "locations": locations,
-        "companies": companies
+        "companies": companies,
+        "local_kw": local_kw or ""
     })
 
 @app.post("/settings/locations/add")

@@ -1,3 +1,4 @@
+import os
 from fastapi import FastAPI, Request, Form, Depends
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
@@ -7,8 +8,12 @@ from sqlalchemy.orm import declarative_base, sessionmaker, Session
 app = FastAPI(title="Human and Resource")
 templates = Jinja2Templates(directory="templates")
 
-# ฐานข้อมูล SQLite (ข้อมูลไม่หายเมื่อรีสตาร์ทโปรเจกต์)
-DB_FILE = "hrm.db"
+# กำหนดโฟลเดอร์สำหรับเก็บฐานข้อมูลถาวร (ป้องกันข้อมูลหายเวลา Redeploy)
+DATA_DIR = "/app/data"
+os.makedirs(DATA_DIR, exist_ok=True)
+
+# ระบุ path เต็มของฐานข้อมูลให้ไปเก็บอยู่ในโฟลเดอร์ data บนเซิร์ฟเวอร์
+DB_FILE = os.path.join(DATA_DIR, "hrm.db")
 engine = create_engine(f"sqlite:///{DB_FILE}", connect_args={"check_same_thread": False})
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 Base = declarative_base()

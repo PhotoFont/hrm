@@ -199,7 +199,7 @@ async def delete_company(code: str, db: Session = Depends(get_db)):
 async def list_locations(
     request: Request, 
     db: Session = Depends(SessionLocal),
-    local_kw: str = ""  # <--- เพิ่มตรงนี้เพื่อให้เป็นค่าทางเลือก ไม่บังคับส่ง
+    local_kw: str | None = None  # <--- เพิ่มตรงนี้เพื่อให้เป็นค่าทางเลือก ไม่บังคับส่ง
 ):
     # รองรับการค้นหา (ถ้ามีการส่งค่ามา)
     query = db.query(Location)

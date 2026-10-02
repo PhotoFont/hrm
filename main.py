@@ -1,5 +1,5 @@
 import os
-from fastapi import FastAPI, Request, Form, Depends
+from fastapi import FastAPI, Request, Form, Depends, Query
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
 from sqlalchemy import create_engine, Column, String, Integer, Boolean, Float
@@ -199,7 +199,7 @@ async def delete_company(code: str, db: Session = Depends(get_db)):
 async def list_locations(
     request: Request, 
     db: Session = Depends(SessionLocal),
-    local_kw: Optional[str] = None  # <--- เพิ่มตรงนี้เพื่อให้เป็นค่าทางเลือก ไม่บังคับส่ง
+    local_kw: Optional[str] = Query(None)  # <--- เพิ่มตรงนี้เพื่อให้เป็นค่าทางเลือก ไม่บังคับส่ง
 ):
     # รองรับการค้นหา (ถ้ามีการส่งค่ามา)
     query = db.query(Location)

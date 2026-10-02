@@ -199,13 +199,7 @@ async def delete_company(code: str, db: Session = Depends(get_db)):
 async def list_locations(
     request: Request, 
     db: Session = Depends(SessionLocal),
-    local_kw: str | None = None  # <--- เพิ่มตรงนี้เพื่อให้เป็นค่าทางเลือก ไม่บังคับส่ง
-):
-    # รองรับการค้นหา (ถ้ามีการส่งค่ามา)
-    query = db.query(Location)
-    if local_kw:
-        query = query.filter(Location.name.contains(local_kw))
-    
+): 
     locations = query.order_by(Location.display_order.asc()).all()
     companies = db.query(Company).filter(Company.is_active == True).all() if 'Company' in globals() else []
     
@@ -213,7 +207,7 @@ async def list_locations(
         "request": request,
         "locations": locations,
         "companies": companies,
-        "local_kw": local_kw or ""
+        "local_kw": ""
     })
 
 @app.post("/settings/locations/add")

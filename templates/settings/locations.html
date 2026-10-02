@@ -1,0 +1,172 @@
+{% extends "layout.html" %}
+
+{% block title %}ตั้งค่าสถานที่ทำงาน - Human and Resource{% endblock %}
+
+{% block header_title %}ตั้งค่าระบบ{% endblock %}
+
+{% block content %}
+<div class="container-fluid px-0">
+    <h4 class="fw-bold mb-1">ตั้งค่า</h4>
+    <p class="text-muted small mb-3">ข้อมูลพื้นฐาน ผู้ใช้ สิทธิ์ และเงื่อนไขทั้งหมดของระบบรวมอยู่ที่นี่</p>
+    
+    <ul class="nav nav-tabs mb-4">
+        <li class="nav-item"><a class="nav-link text-secondary" href="/settings/company">ข้อมูลบริษัท</a></li>
+        <li class="nav-item"><a class="nav-link active fw-bold text-dark border-bottom border-3 border-orange" href="/settings/locations">สถานที่ทำงาน</a></li>
+        <li class="nav-item"><a class="nav-link text-secondary" href="#">ฝ่าย / แผนก</a></li>
+        <li class="nav-item"><a class="nav-link text-secondary" href="#">ตำแหน่ง</a></li>
+        <li class="nav-item"><a class="nav-link text-secondary" href="#">ฟิลด์เพิ่มเติมพนักงาน</a></li>
+    </ul>
+
+    <div class="card border-0 shadow-sm p-4">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <div>
+                <h5 class="fw-bold mb-1">สถานที่ทำงาน</h5>
+                <small class="text-muted">สาขาหรือจุดปฏิบัติงาน ใช้กำหนดพิกัดสำหรับลงเวลาแบบ GPS</small>
+            </div>
+            <div class="d-flex gap-2">
+                <input type="text" class="form-control form-control-sm" placeholder="ค้นหา..." style="width: 200px;">
+                <button class="btn btn-orange btn-sm text-white" data-bs-toggle="modal" data-bs-target="#addLocationModal">+ เพิ่มสถานที่</button>
+            </div>
+        </div>
+
+        <div class="table-responsive">
+            <table class="table align-middle">
+                <thead class="table-light text-secondary small">
+                    <tr>
+                        <th>รหัส</th>
+                        <th>ชื่อสถานที่</th>
+                        <th>บริษัท</th>
+                        <th>พิกัด</th>
+                        <th>รัศมี</th>
+                        <th>สถานะ</th>
+                        <th class="text-end">จัดการ</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for loc in locations %}
+                    <tr>
+                        <td class="fw-bold">{{ loc.code }}</td>
+                        <td>
+                            <div class="fw-bold">{{ loc.name }}</div>
+                            <small class="text-muted">{{ loc.address or '-' }}</small>
+                        </td>
+                        <td>{{ loc.company_code }}</td>
+                        <td><span class="small font-monospace">{{ loc.latitude }}, {{ loc.longitude }}</span></td>
+                        <td>{{ loc.radius }} ม.</td>
+                        <td>
+                            {% if loc.is_active %}
+                            <span class="badge bg-success bg-opacity-10 text-success px-3 py-2 rounded-pill">ใช้งาน</span>
+                            {% else %}
+                            <span class="badge bg-secondary bg-opacity-10 text-secondary px-3 py-2 rounded-pill">ปิดใช้งาน</span>
+                            {% endif %}
+                        </td>
+                        <td class="text-end">
+                            <button class="btn btn-sm btn-light border text-secondary"><i class="bi bi-pencil"></i></button>
+                            <a href="#" class="btn btn-sm btn-light border text-danger" onclick="return confirm('ยืนยันการลบ?')"><i class="bi bi-trash"></i></a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Modal เพิ่มสถานที่ทำงาน -->
+<div class="modal fade" id="addLocationModal" tabindex="-1">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable">
+        <div class="modal-content">
+            <form action="/settings/locations/add" method="POST">
+                <div class="modal-header py-2 px-3">
+                    <h6 class="modal-title fw-bold">เพิ่มสถานที่ทำงาน</h6>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-3" style="font-size: 0.85rem;">
+                    <div class="row g-2 mb-2">
+                        <div class="col-md-6">
+                            <label class="form-label small fw-bold">บริษัท *</label>
+                            <select class="form-select form-select-sm" name="company_code" required>
+                                <option value="" disabled selected>-- เลือกบริษัท --</option>
+                                {% for comp in companies %}
+                                <option value="{{ comp.code }}">{{ comp.code }} - {{ comp.name_th }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label small fw-bold">รหัสสถานที่ *</label>
+                            <input type="text" class="form-control form-control-sm" name="code" required>
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label small fw-bold">ลำดับ</label>
+                            <input type="number" class="form-control form-control-sm" name="display_order" value="0">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label small fw-bold">ชื่อสถานที่ *</label>
+                            <input type="text" class="form-control form-control-sm" name="name" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label small">โทรศัพท์</label>
+                            <input type="text" class="form-control form-control-sm" name="phone">
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label small">ที่อยู่</label>
+                            <textarea class="form-control form-control-sm" name="address" rows="2"></textarea>
+                        </div>
+                    </div>
+                    <hr class="text-muted my-2">
+                    <p class="small fw-bold text-secondary mb-1">พิกัดสำหรับลงเวลา</p>
+                    <div class="row g-2 mb-2 align-items-end">
+                        <div class="col-md-4">
+                            <label class="form-label small">ละติจูด</label>
+                            <input type="text" class="form-control form-control-sm" id="lat-input" name="latitude">
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label small">ลองจิจูด</label>
+                            <input type="text" class="form-control form-control-sm" id="lng-input" name="longitude">
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label small">รัศมี (เมตร)</label>
+                            <input type="number" class="form-control form-control-sm" name="radius" value="150">
+                        </div>
+                        <div class="col-12 mt-1">
+                            <button type="button" class="btn btn-outline-secondary btn-sm" id="get-location-btn">
+                                <i class="bi bi-crosshair"></i> ใช้พิกัดปัจจุบันของเครื่องนี้
+                            </button>
+                        </div>
+                        <div class="col-12 mt-3">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="is_active" value="true" checked id="addActive">
+                                <label class="form-check-label fw-bold" for="addActive">เปิดใช้งาน</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer py-2 bg-light">
+                    <button type="button" class="btn btn-light border btn-sm px-3" data-bs-dismiss="modal">ยกเลิก</button>
+                    <button type="submit" class="btn btn-orange btn-sm px-3 text-white">บันทึก</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.getElementById('get-location-btn').addEventListener('click', function () {
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(
+                function (position) {
+                    document.getElementById('lat-input').value = position.coords.latitude;
+                    document.getElementById('lng-input').value = position.coords.longitude;
+                },
+                function (error) {
+                    alert('ไม่สามารถดึงพิกัดได้: กรุณาอนุญาตการเข้าถึงตำแหน่งในเบราว์เซอร์');
+                }
+            );
+        } else {
+            alert('เบราว์เซอร์ของคุณไม่รองรับ Geolocation');
+        }
+    });
+</script>
+{% endblock %}

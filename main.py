@@ -2,7 +2,7 @@ import os
 from fastapi import FastAPI, Request, Form, Depends
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
-from sqlalchemy import create_engine, Column, String, Integer, Boolean
+from sqlalchemy import create_engine, Column, String, Integer, Boolean, Float
 from sqlalchemy.orm import declarative_base, sessionmaker, Session
 
 app = FastAPI(title="Human and Resource")
@@ -42,6 +42,22 @@ class CompanyModel(Base):
     signatory_name = Column(String)
     signatory_position = Column(String)
     emp_code_format = Column(String)
+    display_order = Column(Integer, default=0)
+    is_active = Column(Boolean, default=True)
+
+# --- 2. เพิ่ม Model สำหรับ Location ---
+class Location(Base):
+    __tablename__ = "locations"
+    
+    id = Column(Integer, primary_key=True, index=True)
+    code = Column(String, unique=True, index=True)
+    company_code = Column(String, index=True)
+    name = Column(String, nullable=False)
+    phone = Column(String, nullable=True)
+    address = Column(String, nullable=True)
+    latitude = Column(String, nullable=True)
+    longitude = Column(String, nullable=True)
+    radius = Column(Integer, default=150)
     display_order = Column(Integer, default=0)
     is_active = Column(Boolean, default=True)
 
@@ -177,3 +193,43 @@ async def delete_company(code: str, db: Session = Depends(get_db)):
         db.delete(company)
         db.commit()
     return RedirectResponse(url="/settings/company", status_code=303)
+
+@app.get("/settings/locations", response_class=HTMLResponse)
+async def list_locations(request: Request, db: Session = Depends(SessionLocal)):
+    locations = db.query(Location).order_by(Location.display_order.asc()).all()
+    companies = db.query(Company).filter(Company.is_active == True).all() if 'Company' in globals() else []
+    return templates.TemplateResponse("settings/locations.html", {
+        "request": request,
+        "locations": locations,
+        "companies": companies
+    })
+
+@app.post("/settings/locations/add")
+async def add_location(
+    company_code: str = Form(...),
+    code: str = Form(...),
+    name: str = Form(...),
+    phone: str = Form(None),
+    address: str = Form(None),
+    latitude: str = Form(None),
+    longitude: str = Form(None),
+    radius: int = Form(150),
+    display_order: int = Form(0),
+    is_active: bool = Form(False),
+    db: Session = Depends(SessionLocal)
+):
+    new_loc = Location(
+        company_code=company_code,
+        code=code,
+        name=name,
+        phone=phone,
+        address=address,
+        latitude=latitude,
+        longitude=longitude,
+        radius=radius,
+        display_order=display_order,
+        is_active=is_active
+    )
+    db.add(new_loc)
+    db.commit()
+    return RedirectResponse(url="/settings/locations", status_code=303)

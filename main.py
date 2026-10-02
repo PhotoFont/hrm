@@ -198,11 +198,13 @@ async def delete_company(code: str, db: Session = Depends(get_db)):
 @app.get("/settings/locations", response_class=HTMLResponse)
 async def list_locations(
     request: Request, 
-    db: Session = Depends(SessionLocal),
-): 
+    db: Session = Depends(SessionLocal)
+):
+    # ประกาศ query ให้ถูกต้องตรงนี้ครับ
+    query = db.query(Location)
     locations = query.order_by(Location.display_order.asc()).all()
     companies = db.query(Company).filter(Company.is_active == True).all() if 'Company' in globals() else []
-    
+
     return templates.TemplateResponse("settings/locations.html", {
         "request": request,
         "locations": locations,

@@ -197,20 +197,32 @@ async def delete_company(code: str, db: Session = Depends(get_db)):
 
 @app.get("/settings/locations", response_class=HTMLResponse)
 async def list_locations(
-    request: Request, 
-    db: Session = Depends(SessionLocal)
+    request: Request,
+    db: Session = Depends(get_db)
 ):
-    # ประกาศ query ให้ถูกต้องตรงนี้ครับ
-    query = db.query(Location)
-    locations = query.order_by(Location.display_order.asc()).all()
-    companies = db.query(Company).filter(Company.is_active == True).all() if 'Company' in globals() else []
+    locations = (
+        db.query(Location)
+        .order_by(Location.display_order.asc())
+        .all()
+    )
 
-    return templates.TemplateResponse("settings/locations.html", {
-        "request": request,
-        "locations": locations,
-        "companies": companies,
-        "local_kw": ""
-    })
+    companies = (
+        db.query(CompanyModel)
+        .filter(CompanyModel.is_active == True)
+        .order_by(CompanyModel.display_order.asc())
+        .all()
+    )
+
+    return templates.TemplateResponse(
+        request,
+        "settings/locations.html",
+        {
+            "active_menu": "locations",
+            "locations": locations,
+            "companies": companies,
+            "local_kw": ""
+        }
+    )
 
 @app.post("/settings/locations/add")
 async def add_location(

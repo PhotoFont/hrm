@@ -1,5 +1,5 @@
 import os
-from fastapi import FastAPI, Request, Form, Depends, Query
+from fastapi import FastAPI, Request, Form, Depends
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
 from sqlalchemy import create_engine, Column, String, Integer, Boolean, Float
@@ -73,9 +73,9 @@ def get_db():
     finally:
         db.close()
 
-@app.get("/", response_class=HTMLResponse)
-async def dashboard(request: Request):
-    return templates.TemplateResponse(request, "settings/company.html", {"active_menu": "dashboard"})
+@app.get("/")
+async def dashboard():
+    return RedirectResponse(url="/settings/company", status_code=302)
 
 @app.get("/settings/company", response_class=HTMLResponse)
 async def company_settings(request: Request, db: Session = Depends(get_db)):
@@ -220,7 +220,6 @@ async def list_locations(
             "active_menu": "locations",
             "locations": locations,
             "companies": companies,
-            "local_kw": ""
         }
     )
 
@@ -233,12 +232,25 @@ async def add_location(
     address: str = Form(None),
     latitude: str = Form(None),
     longitude: str = Form(None),
-    radius: int = Form(150),
+    radius: int = Form(50),
     display_order: int = Form(0),
-    is_active: bool = Form(False),
-    db: Session = Depends(SessionLocal)
+    is_active: Optional[str] = Form(None),
+    db: Session = Depends(get_db)
 ):
-    new_loc = Location(
+
+    exists = (
+        db.query(Location)
+        .filter(Location.code == code)
+        .first()
+    )
+
+    if exists:
+        return RedirectResponse(
+            url="/settings/locations",
+            status_code=303
+        )
+
+    loc = Location(
         company_code=company_code,
         code=code,
         name=name,
@@ -248,8 +260,19 @@ async def add_location(
         longitude=longitude,
         radius=radius,
         display_order=display_order,
-        is_active=is_active
+        is_active=bool(is_active)
     )
-    db.add(new_loc)
+
+    db.add(loc)
     db.commit()
-    return RedirectResponse(url="/settings/locations", status_code=303)
+
+    return RedirectResponse(
+        url="/settings/locations",
+        status_code=303
+    )
+
+@app.get("/version")
+async def version():
+    return {
+            "version": "location-fix-v1"
+    }

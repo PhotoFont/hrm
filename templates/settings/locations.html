@@ -46,23 +46,23 @@
                     {% if locations %}
                     {% for loc in locations %}
                     <tr>
-                    <td class="fw-bold">{{ loc.code }}</td>
+                        <td class="fw-bold">{{ loc.code }}</td>
+                         
+                        <td>
+                            <div class="fw-bold">{{ loc.name }}</div>
+                            <small class="text-muted">
+                            {{ loc.address or "-" }}
+                        </small>
+                        </td>
                      
-                    <td>
-                    <div class="fw-bold">{{ loc.name }}</div>
-                    <small class="text-muted">
-                    {{ loc.address or "-" }}
-                    </small>
-                    </td>
-                     
-                    <td>{{ loc.company_code }}</td>
-                     
-                    <td>
-                    <span class="small font-monospace">
-                    {{ loc.latitude or "-" }},
-                    {{ loc.longitude or "-" }}
-                    </span>
-                    </td>
+                        <td>{{ loc.company_code }}</td>
+                         
+                        <td>
+                        <span class="small font-monospace">
+                        {{ loc.latitude or "-" }},
+                        {{ loc.longitude or "-" }}
+                        </span>
+                        </td>
                      
                     <td>{{ loc.radius }} ม.</td>
                      
@@ -79,9 +79,13 @@
                     </td>
                      
                     <td class="text-end">
-                    <button class="btn btn-sm btn-light border">
+                    <button class="btn btn-sm btn-light border text-secondary" data-bs-toggle="modal" data-bs-target="#editLocationModal{{ loc.id }}">
                     <i class="bi bi-pencil"></i>
                     </button>
+                    <!-- ปุ่มลบ -->
+                    <a
+                        href="/settings/locations/delete/{{ loc.id }}"
+                        class="btn btn-sm btn-light border text-danger">
                     <i class="bi bi-trash"></i>
                     </a>
                     </td>
@@ -178,6 +182,196 @@
     </div>
 </div>
 {% endblock %}
+
+{% for loc in locations %}
+<div class="modal fade"
+     id="editLocationModal{{ loc.id }}"
+     tabindex="-1">
+
+    <div class="modal-dialog modal-lg modal-dialog-scrollable">
+
+        <div class="modal-content">
+
+            /settings/locations/update
+
+                <input type="hidden"
+                       name="location_id"
+                       value="{{ loc.id }}">
+
+                <div class="modal-header">
+                    <h5 class="modal-title fw-bold">
+                        แก้ไขสถานที่ทำงาน
+                    </h5>
+
+                    <button type="button"
+                            class="btn-close"
+                            data-bs-dismiss="modal">
+                    </button>
+                </div>
+
+                <div class="modal-body">
+
+                    <div class="row g-3">
+
+                        <div class="col-md-6">
+                            <label class="form-label">
+                                บริษัท
+                            </label>
+
+                            <select class="form-select"
+                                    name="company_code">
+
+                                {% for comp in companies %}
+
+                                <option
+                                    value="{{ comp.code }}"
+                                    {% if comp.code == loc.company_code %}selected{% endif %}
+                                >
+                                    {{ comp.code }} - {{ comp.name_th }}
+                                </option>
+
+                                {% endfor %}
+
+                            </select>
+                        </div>
+
+                        <div class="col-md-3">
+                            <label class="form-label">
+                                รหัสสถานที่
+                            </label>
+
+                            <input type="text"
+                                   class="form-control"
+                                   name="code"
+                                   value="{{ loc.code }}"
+                                   required>
+                        </div>
+
+                        <div class="col-md-3">
+                            <label class="form-label">
+                                ลำดับ
+                            </label>
+
+                            <input type="number"
+                                   class="form-control"
+                                   name="display_order"
+                                   value="{{ loc.display_order }}">
+                        </div>
+
+                        <div class="col-12">
+                            <label class="form-label">
+                                ชื่อสถานที่
+                            </label>
+
+                            <input type="text"
+                                   class="form-control"
+                                   name="name"
+                                   value="{{ loc.name }}"
+                                   required>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">
+                                โทรศัพท์
+                            </label>
+
+                            <input type="text"
+                                   class="form-control"
+                                   name="phone"
+                                   value="{{ loc.phone or '' }}">
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">
+                                รัศมี (เมตร)
+                            </label>
+
+                            <input type="number"
+                                   class="form-control"
+                                   name="radius"
+                                   value="{{ loc.radius }}">
+                        </div>
+
+                        <div class="col-12">
+                            <label class="form-label">
+                                ที่อยู่
+                            </label>
+
+                            <textarea
+                                class="form-control"
+                                rows="2"
+                                name="address">{{ loc.address or '' }}</textarea>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">
+                                Latitude
+                            </label>
+
+                            <input type="text"
+                                   class="form-control"
+                                   name="latitude"
+                                   value="{{ loc.latitude or '' }}">
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">
+                                Longitude
+                            </label>
+
+                            <input type="text"
+                                   class="form-control"
+                                   name="longitude"
+                                   value="{{ loc.longitude or '' }}">
+                        </div>
+
+                        <div class="col-12">
+
+                            <div class="form-check">
+
+                                <input
+                                    class="form-check-input"
+                                    type="checkbox"
+                                    name="is_active"
+                                    value="true"
+                                    {% if loc.is_active %}checked{% endif %}
+                                >
+
+                                <label class="form-check-label">
+                                    เปิดใช้งาน
+                                </label>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <div class="modal-footer">
+
+                    <button type="button"
+                            class="btn btn-secondary"
+                            data-bs-dismiss="modal">
+                        ยกเลิก
+                    </button>
+
+                    <button type="submit"
+                            class="btn btn-primary">
+                        บันทึกการแก้ไข
+                    </button>
+
+                </div>
+
+            </form>
+
+        </div>
+
+    </div>
+
+</div>
+{% endfor %}
 
 {% block extra_js %}
 <script>

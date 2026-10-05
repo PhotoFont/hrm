@@ -79,6 +79,7 @@
                     </td>
                      
                     <td class="text-end">
+                    <!-- ปุ่มแก้ไข -->
                     <button 
                         class="btn btn-sm btn-light border text-secondary"
                         data-bs-toggle="modal"
@@ -89,8 +90,9 @@
                     <!-- ปุ่มลบ -->
                     <a
                         href="/settings/locations/delete/{{ loc.id }}"
-                        class="btn btn-sm btn-light border text-danger">
-                    <i class="bi bi-trash"></i>
+                        class="btn btn-sm btn-light border text-danger"
+                        onclick="return confirm('คุณต้องการลบสถานที่ทำงานนี้ใช่หรือไม่?');">
+                        <i class="bi bi-trash"></i>
                     </a>
                     </td>
                     </tr>
@@ -196,7 +198,7 @@
 
         <div class="modal-content">
 
-            /settings/locations/update
+            <form action="/settings/locations/update">
 
                 <input type="hidden"
                        name="location_id"

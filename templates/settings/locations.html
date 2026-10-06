@@ -81,8 +81,7 @@
                     <td class="text-end">
                     <!-- ปุ่มแก้ไข -->
                     <button type="button" class="px-2 py-1 bg-blue-50 text-blue-600 rounded hover:bg-blue-100 transition text-sm font-medium" onclick="openEditModal(&#39;{{ loc.id }}&#39;, &#39;{{ loc.code }}&#39;, &#39;{{ loc.name }}&#39;, &#39;{{ loc.address }}&#39;, &#39;{{ loc.company_code }}&#39;, &#39;{{ loc.latitude }}&#39;, &#39;{{ loc.longitude }}&#39;, &#39;{{ loc.radius }}&#39;, &#39;{{ loc.is_active }}&#39;)">
-                        แก้ไข
-                        <i class="bi bi-pencil"></i>
+                    <i class="bi bi-pencil"></i>
                     </button>
                     <!-- ปุ่มลบ -->
                     <a
@@ -469,5 +468,70 @@
         }
                  
     });    
+</script>
+<!-- Modal สำหรับแก้ไขข้อมูล -->
+<div id="editLocationModal" class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center z-50">
+    <div class="bg-white rounded-lg p-6 w-full max-w-lg shadow-xl">
+        <h3 class="text-lg font-bold mb-4">แก้ไขสถานที่ทำงาน</h3>
+        
+        <form id="editLocationForm" method="POST">
+            <input type="hidden" id="edit_id" name="id">
+            
+            <div class="mb-3">
+                <label class="block text-sm font-medium text-gray-700">รหัสสถานที่</label>
+                <input type="text" id="edit_code" name="code" class="w-full border rounded p-2 bg-gray-100" readonly>
+            </div>
+            
+            <div class="mb-3">
+                <label class="block text-sm font-medium text-gray-700">ชื่อสถานที่</label>
+                <input type="text" id="edit_name" name="name" class="w-full border rounded p-2" required>
+            </div>
+
+            <div class="mb-3">
+                <label class="block text-sm font-medium text-gray-700">ที่อยู่</label>
+                <textarea id="edit_address" name="address" class="w-full border rounded p-2" rows="2"></textarea>
+            </div>
+
+            <div class="grid grid-cols-2 gap-2 mb-3">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">ละติจูด (Latitude)</label>
+                    <input type="text" id="edit_lat" name="latitude" class="w-full border rounded p-2">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">ลองจิจูด (Longitude)</label>
+                    <input type="text" id="edit_lng" name="longitude" class="w-full border rounded p-2">
+                </div>
+            </div>
+
+            <div class="mb-4">
+                <label class="block text-sm font-medium text-gray-700">รัศมี (เมตร)</label>
+                <input type="number" id="edit_radius" name="radius" class="w-full border rounded p-2">
+            </div>
+
+            <div class="flex justify-end space-x-2">
+                <button type="button" onclick="closeEditModal()" class="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400">ยกเลิก</button>
+                <button type="submit" class="px-4 py-2 bg-orange-600 text-white rounded hover:bg-orange-700">บันทึกการแก้ไข</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+function openEditModal(id, code, name, address, companyCode, lat, lng, radius, isActive) {
+    document.getElementById('edit_id').value = id;
+    document.getElementById('edit_code').value = code;
+    document.getElementById('edit_name').value = name;
+    document.getElementById('edit_address').value = address;
+    document.getElementById('edit_lat').value = lat;
+    document.getElementById('edit_lng').value = lng;
+    document.getElementById('edit_radius').value = radius;
+    
+    document.getElementById('editLocationForm').action = `/settings/locations/update/${id}`;
+    document.getElementById('editLocationModal').classList.remove('hidden');
+}
+
+function closeEditModal() {
+    document.getElementById('editLocationModal').classList.add('hidden');
+}
 </script>
 {% endblock %}

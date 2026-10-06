@@ -293,41 +293,21 @@ async def delete_location(
 
 @app.post("/settings/locations/update/{location_id}")
 async def update_location(
-    location_id: int = Form(...),
-    company_code: str = Form(...),
-    code: str = Form(...),
+    location_id: int,
     name: str = Form(...),
-    phone: str = Form(None),
     address: str = Form(None),
     latitude: str = Form(None),
     longitude: str = Form(None),
-    radius: int = Form(50),
-    display_order: int = Form(0),
-    is_active: Optional[str] = Form(None),
-    db: Session = Depends(get_db)
+    radius: int = Form(None),
+    db: Session = Depends(SessionLocal)
 ):
-
-    location = (
-        db.query(Location)
-        .filter(Location.id == location_id)
-        .first()
-    )
-
+    location = db.query(Location).filter(Location.id == location_id).first()
     if location:
-        location.company_code = company_code
-        location.code = code
         location.name = name
-        location.phone = phone
         location.address = address
         location.latitude = latitude
         location.longitude = longitude
         location.radius = radius
-        location.display_order = display_order
-        location.is_active = is_active is not None
-
         db.commit()
-
-    return RedirectResponse(
-        url="/settings/locations",
-        status_code=303
-    )
+    
+    return RedirectResponse(url="/settings/locations", status_code=303)

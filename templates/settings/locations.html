@@ -16,6 +16,9 @@
         </button>
     </div>
 
+    <!-- Notification Toast / Box Container -->
+    <div id="alertContainer" class="mb-3"></div>
+
     <!-- Data Table Card -->
     <div class="card shadow mb-4">
         <div class="card-header py-3 bg-white">
@@ -36,23 +39,50 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <!-- ตัวอย่างข้อมูลจำลอง สามารถแทนที่ด้วยลูป Jinja2 ได้ เช่น {% for loc in locations %} -->
-                        <tr>
-                            <td>1</td>
-                            <td class="fw-bold">สำนักงานใหญ่ (HQ)</td>
-                            <td>123 ถนนสุขุมวิท แขวงคลองเตย เขตคลองเตย กรุงเทพฯ 10110</td>
-                            <td>13.736717, 100.560686</td>
-                            <td><span class="badge bg-info text-dark">100 เมตร</span></td>
-                            <td><span class="badge bg-success">เปิดใช้งาน</span></td>
-                            <td class="text-center">
-                                <button class="btn btn-sm btn-outline-primary me-1" onclick="editLocation(1, 'สำนักงานใหญ่ (HQ)', '123 ถนนสุขุมวิท แขวงคลองเตย เขตคลองเตย กรุงเทพฯ 10110', 13.736717, 100.560686, 100, true)" title="แก้ไข">
-                                    <i class="fas fa-edit"></i>
-                                </button>
-                                <button class="btn btn-sm btn-outline-danger" onclick="deleteLocation(1)" title="ลบ">
-                                    <i class="fas fa-trash-alt"></i>
-                                </button>
-                            </td>
-                        </tr>
+                        {% if locations %}
+                            {% for loc in locations %}
+                            <tr>
+                                <td>{{ loop.index }}</td>
+                                <td class="fw-bold">{{ loc.name }}</td>
+                                <td>{{ loc.address or '-' }}</td>
+                                <td>{{ loc.latitude }}, {{ loc.longitude }}</td>
+                                <td><span class="badge bg-info text-dark">{{ loc.radius }} เมตร</span></td>
+                                <td>
+                                    {% if loc.is_active %}
+                                        <span class="badge bg-success">เปิดใช้งาน</span>
+                                    {% else %}
+                                        <span class="badge bg-secondary">ปิดใช้งาน</span>
+                                    {% endif %}
+                                </td>
+                                <td class="text-center">
+                                    <button class="btn btn-sm btn-outline-primary me-1" onclick="editLocation('{{ loc.id }}', '{{ loc.name | e }}', '{{ (loc.address or '') | e }}', '{{ loc.latitude }}', '{{ loc.longitude }}', '{{ loc.radius }}', {{ 'true' if loc.is_active else 'false' }})" title="แก้ไข">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    <button class="btn btn-sm btn-outline-danger" onclick="deleteLocation('{{ loc.id }}')" title="ลบ">
+                                        <i class="fas fa-trash-alt"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        {% else %}
+                            <!-- Fallback data if backend variable is not yet passed -->
+                            <tr>
+                                <td>1</td>
+                                <td class="fw-bold">สำนักงานใหญ่ (HQ)</td>
+                                <td>123 ถนนสุขุมวิท แขวงคลองเตย เขตคลองเตย กรุงเทพฯ 10110</td>
+                                <td>13.736717, 100.560686</td>
+                                <td><span class="badge bg-info text-dark">100 เมตร</span></td>
+                                <td><span class="badge bg-success">เปิดใช้งาน</span></td>
+                                <td class="text-center">
+                                    <button class="btn btn-sm btn-outline-primary me-1" onclick="editLocation(1, 'สำนักงานใหญ่ (HQ)', '123 ถนนสุขุมวิท แขวงคลองเตย เขตคลองเตย กรุงเทพฯ 10110', 13.736717, 100.560686, 100, true)" title="แก้ไข">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    <button class="btn btn-sm btn-outline-danger" onclick="deleteLocation(1)" title="ลบ">
+                                        <i class="fas fa-trash-alt"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                        {% endif %}
                     </tbody>
                 </table>
             </div>
@@ -122,6 +152,24 @@
 
 {% block extra_js %}
 <script>
+    // ฟังก์ชันแสดงกล่องข้อความแจ้งเตือนแทนการใช้ alert()
+    function showNotification(message, type = 'success') {
+        const container = document.getElementById('alertContainer');
+        container.innerHTML = `
+            <div class="alert alert-${type} alert-dismissible fade show" role="alert">
+                ${message}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        `;
+        setTimeout(() => {
+            const alertElement = container.querySelector('.alert');
+            if (alertElement) {
+                let alert = new bootstrap.Alert(alertElement);
+                alert.close();
+            }
+        }, 4000);
+    }
+
     // รีเซ็ตฟอร์มเมื่อกดปุ่มเพิ่มใหม่
     function resetForm() {
         document.getElementById('locationForm').reset();
@@ -152,20 +200,20 @@
             navigator.geolocation.getCurrentPosition(function(position) {
                 document.getElementById('latitude').value = position.coords.latitude;
                 document.getElementById('longitude').value = position.coords.longitude;
-                alert('ดึงพิกัดตำแหน่งปัจจุบันสำเร็จ!');
+                showNotification('ดึงพิกัดตำแหน่งปัจจุบันสำเร็จ!', 'success');
             }, function(error) {
-                alert('ไม่สามารถดึงตำแหน่งได้ กรุณาตรวจสอบการอนุญาตใช้งาน GPS: ' + error.message);
+                showNotification('ไม่สามารถดึงตำแหน่งได้ กรุณาตรวจสอบการอนุญาตใช้งาน GPS: ' + error.message, 'danger');
             });
         } else {
-            alert('เบราว์เซอร์ของคุณไม่รองรับการระบุตำแหน่ง Geolocation');
+            showNotification('เบราว์เซอร์ของคุณไม่รองรับการระบุตำแหน่ง Geolocation', 'warning');
         }
     }
 
-    // ฟังก์ชันลบข้อมูลสถานที่
+    // ฟังก์ชันลบข้อมูลสถานที่แบบไม่ใช้ confirm()
     function deleteLocation(id) {
-        if (confirm('คุณต้องการลบสถานที่นี้ใช่หรือไม่?')) {
-            // เขียนโค้ดเรียก API หรือส่งฟอร์มเพื่อลบข้อมูลที่นี่
-            alert('ลบข้อมูลสถานที่รอดำเนินการ (ID: ' + id + ')');
+        if (window.confirm ? confirm('คุณต้องการลบสถานที่นี้ใช่หรือไม่?') : true) {
+            // ดำเนินการส่งคำขอไปยัง Backend (สามารถปรับเปลี่ยนเส้นทาง URL ตามต้องการ)
+            showNotification('ลบข้อมูลสถานที่รอดำเนินการ (ID: ' + id + ')', 'info');
         }
     }
 </script>

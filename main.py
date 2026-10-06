@@ -291,7 +291,7 @@ async def delete_location(
         status_code=303
     )
 
-@app.post("/settings/locations/update")
+@app.post("/settings/locations/update/{location_id}")
 async def update_location(
     location_id: int = Form(...),
     company_code: str = Form(...),

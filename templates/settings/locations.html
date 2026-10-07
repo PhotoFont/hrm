@@ -355,7 +355,7 @@
 </div>
 {% endfor %} {% endcomment %}
 
-{% block extra_js %}
+{% comment %} {% block extra_js %}
 <script>
     document.addEventListener('DOMContentLoaded', function() {
  
@@ -448,7 +448,7 @@
         }
                  
     });    
-</script>
+</script> {% endcomment %}
 {% comment %} <!-- Modal สำหรับแก้ไขข้อมูล -->
 <div id="editLocationModal" class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center z-50">
     <div class="bg-white rounded-lg p-6 w-full max-w-lg shadow-xl">
@@ -496,7 +496,7 @@
     </div>
 </div> {% endcomment %}
 
-<script>
+{% comment %} <script>
 function openEditModal(id, code, name, address, companyCode, lat, lng, radius, isActive) {
     document.getElementById('edit_id').value = id;
     document.getElementById('edit_code').value = code;
@@ -513,5 +513,5 @@ function openEditModal(id, code, name, address, companyCode, lat, lng, radius, i
 function closeEditModal() {
     document.getElementById('editLocationModal').classList.add('hidden');
 }
-</script>
-{% endblock %}
+</script> {% endcomment %}
+{% comment %} {% endblock %} {% endcomment %}

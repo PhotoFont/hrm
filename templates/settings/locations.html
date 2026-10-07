@@ -59,8 +59,8 @@
                      
                     <td class="text-end">
                     <!-- ปุ่มแก้ไข -->
-                    <button type="button" class="px-2 py-1 bg-blue-50 text-blue-600 rounded hover:bg-blue-100 transition text-sm font-medium" onclick="editLocationModal(&#39;{{ loc.id }}&#39;, &#39;{{ loc.code }}&#39;, &#39;{{ loc.name }}&#39;, &#39;{{ loc.address }}&#39;, &#39;{{ loc.company_code }}&#39;, &#39;{{ loc.latitude }}&#39;, &#39;{{ loc.longitude }}&#39;, &#39;{{ loc.radius }}&#39;, &#39;{{ loc.is_active }}&#39;)">
-                    {% comment %} <button class="btn btn-sm btn-light" data-bs-toggle="modal" data-bs-target="#editLocationModal">     {% endcomment %}
+                    <!-- <button type="button" class="px-2 py-1 bg-blue-50 text-blue-600 rounded hover:bg-blue-100 transition text-sm font-medium" onclick="openEditModal(&#39;{{ loc.id }}&#39;, &#39;{{ loc.code }}&#39;, &#39;{{ loc.name }}&#39;, &#39;{{ loc.address }}&#39;, &#39;{{ loc.company_code }}&#39;, &#39;{{ loc.latitude }}&#39;, &#39;{{ loc.longitude }}&#39;, &#39;{{ loc.radius }}&#39;, &#39;{{ loc.is_active }}&#39;)"> -->
+                    <button class="btn btn-sm btn-light" data-bs-toggle="modal" data-bs-target="#editLocationModal">    
                     <i class="bi bi-pencil"></i>
                     </button>
                     <!-- ปุ่มลบ -->

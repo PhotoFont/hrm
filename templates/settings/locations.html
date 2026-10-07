@@ -152,4 +152,22 @@
         </div>
     </div>
 </div>
+<script>
+function openEditModal(id, code, name, address, companyCode, lat, lng, radius, isActive) {
+    document.getElementById('edit_id').value = id;
+    document.getElementById('edit_code').value = code;
+    document.getElementById('edit_name').value = name;
+    document.getElementById('edit_address').value = address;
+    document.getElementById('edit_lat').value = lat;
+    document.getElementById('edit_lng').value = lng;
+    document.getElementById('edit_radius').value = radius;
+    
+    document.getElementById('editLocationForm').action = `/settings/locations/update/${id}`;
+    document.getElementById('editLocationModal').classList.remove('hidden');
+}
+
+function closeEditModal() {
+    document.getElementById('editLocationModal').classList.add('hidden');
+}
+</script>
 {% endblock %}

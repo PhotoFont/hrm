@@ -1,220 +1,155 @@
 {% extends "layout.html" %}
-
 {% block title %}ตั้งค่าสถานที่ทำงาน - Human and Resource{% endblock %}
-
 {% block header_title %}ตั้งค่าระบบ{% endblock %}
 
 {% block content %}
-<div class="container-fluid px-4">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <div>
-            <h1 class="h3 mb-0 text-gray-800">จัดการสถานที่ทำงาน</h1>
-            <p class="text-muted">กำหนดตำแหน่งและรัศมีสำหรับตรวจสอบการเช็คชื่อพนักงาน</p>
-        </div>
-        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#locationModal" onclick="resetForm()">
-            <i class="fas fa-plus-circle me-1"></i> เพิ่มสถานที่ใหม่
-        </button>
-    </div>
+<div class="container-fluid px-0">
+    <h4 class="fw-bold mb-1">ตั้งค่า</h4>
+    <p class="text-muted small mb-3">ข้อมูลพื้นฐาน ผู้ใช้ สิทธิ์ และเงื่อนไขทั้งหมดของระบบรวมอยู่ที่นี่</p>
 
-    <!-- Notification Toast / Box Container -->
-    <div id="alertContainer" class="mb-3"></div>
+    <ul class="nav nav-tabs mb-4">
+        <li class="nav-item"><a class="nav-link text-secondary" href="/settings/company">ข้อมูลบริษัท</a></li>
+        <li class="nav-item"><a class="nav-link active fw-bold text-dark border-bottom border-3 border-orange" href="/settings/locations">สถานที่ทำงาน</a></li>
+        <li class="nav-item"><a class="nav-link text-secondary" href="#">ฝ่าย/แผนก</a></li>
+        <li class="nav-item"><a class="nav-link text-secondary" href="#">ตำแหน่ง</a></li>
+        <li class="nav-item"><a class="nav-link text-secondary" href="#">ฟิลด์เพิ่มเติมพนักงาน</a></li>
+    </ul>
 
-    <!-- Data Table Card -->
-    <div class="card shadow mb-4">
-        <div class="card-header py-3 bg-white">
-            <h6 class="m-0 font-weight-bold text-primary">รายการสถานที่ทำงานทั้งหมด</h6>
-        </div>
-        <div class="card-body">
-            <div class="table-responsive">
-                <table class="table table-bordered table-hover align-middle" id="locationsTable" width="100%" cellspacing="0">
-                    <thead class="table-light">
-                        <tr>
-                            <th width="5%">#</th>
-                            <th width="20%">ชื่อสถานที่</th>
-                            <th width="30%">ที่อยู่</th>
-                            <th width="15%">พิกัด (Lat, Lng)</th>
-                            <th width="10%">รัศมี (เมตร)</th>
-                            <th width="10%">สถานะ</th>
-                            <th width="10%" class="text-center">จัดการ</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% if locations %}
-                            {% for loc in locations %}
-                            <tr>
-                                <td>{{ loop.index }}</td>
-                                <td class="fw-bold">{{ loc.name }}</td>
-                                <td>{{ loc.address or '-' }}</td>
-                                <td>{{ loc.latitude }}, {{ loc.longitude }}</td>
-                                <td><span class="badge bg-info text-dark">{{ loc.radius }} เมตร</span></td>
-                                <td>
-                                    {% if loc.is_active %}
-                                        <span class="badge bg-success">เปิดใช้งาน</span>
-                                    {% else %}
-                                        <span class="badge bg-secondary">ปิดใช้งาน</span>
-                                    {% endif %}
-                                </td>
-                                <td class="text-center">
-                                    <button class="btn btn-sm btn-outline-primary me-1" onclick="editLocation('{{ loc.id }}', '{{ loc.name | e }}', '{{ (loc.address or '') | e }}', '{{ loc.latitude }}', '{{ loc.longitude }}', '{{ loc.radius }}', {{ 'true' if loc.is_active else 'false' }})" title="แก้ไข">
-                                        <i class="fas fa-edit"></i>
-                                    </button>
-                                    <button class="btn btn-sm btn-outline-danger" onclick="deleteLocation('{{ loc.id }}')" title="ลบ">
-                                        <i class="fas fa-trash-alt"></i>
-                                    </button>
-                                </td>
-                            </tr>
-                            {% endfor %}
-                        {% else %}
-                            <!-- Fallback data if backend variable is not yet passed -->
-                            <tr>
-                                <td>1</td>
-                                <td class="fw-bold">สำนักงานใหญ่ (HQ)</td>
-                                <td>123 ถนนสุขุมวิท แขวงคลองเตย เขตคลองเตย กรุงเทพฯ 10110</td>
-                                <td>13.736717, 100.560686</td>
-                                <td><span class="badge bg-info text-dark">100 เมตร</span></td>
-                                <td><span class="badge bg-success">เปิดใช้งาน</span></td>
-                                <td class="text-center">
-                                    <button class="btn btn-sm btn-outline-primary me-1" onclick="editLocation(1, 'สำนักงานใหญ่ (HQ)', '123 ถนนสุขุมวิท แขวงคลองเตย เขตคลองเตย กรุงเทพฯ 10110', 13.736717, 100.560686, 100, true)" title="แก้ไข">
-                                        <i class="fas fa-edit"></i>
-                                    </button>
-                                    <button class="btn btn-sm btn-outline-danger" onclick="deleteLocation(1)" title="ลบ">
-                                        <i class="fas fa-trash-alt"></i>
-                                    </button>
-                                </td>
-                            </tr>
-                        {% endif %}
-                    </tbody>
-                </table>
+    <div class="card border-0 shadow-sm p-4">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <div>
+                <h5 class="fw-bold mb-1">สถานที่ทำงาน</h5>
+                <small class="text-muted">สาขาหรือจุดปฏิบัติงาน ใช้กำหนดพิกัดสำหรับลงเวลาแบบ GPS</small>
             </div>
         </div>
-    </div>
+        <div class="table-responsive">
+            <table class"table-light align-middle">
+                <thead class="table-light text-secondary small">
+                    <tr>
+                        <th>รหัส</th>
+                        <th>ชื่อสถานที่</th>
+                        <th>บริษัท</th>
+                        <th>พิกัด</th>
+                        <th>รัศมี</th>
+                        <th>สถานะ</th>
+                        <th class="text-end">จัดการ</th>
+                    </tr>    
+                </thead>
+                <tbody>
+                    {% if locations %}
+                    {% for loc in location %}
+                    <tr>
+                        <td class="fw-bold">{{ loc.code }}</td>
+                        <td>
+                            <div class="fw-bold">{{ loc.name }}</div>
+                            <small class"text-muted">
+                            {{ loc.address or "-" }}
+                            </small>
+                        </td>
+                        <td>{{ loc.company_code }}</td>
+                        <td>
+                            <span class="small font-monospace">
+                                {{ loc.latitude or "-" }},
+                                {{ loc.longitude or "-" }}
+                            </span>
+                        </td>
+                        <td>{{ loc.radius }} ม. </td>
+                        <td>{% if loc.is_active %}<span class="badge bg-success bg-opacity-10 text-success px-3 py-2 rounded-pill">ใช้งาน</span>
+                            {% else %} <span class="badge bg-secondary bg-opacity-10 text-secondary px-3 py-2 rounded-pill">ปิดใช้งาน</span>
+                            {% endif %}
+                        </td>  
+                        <td class="text-end">
+                            <button type="button" class="px-2 py-1 bg-blue-50 text-blue-600 rounded hover:bg-blue-100 transition text-sm font-medium" onclick="openEditModal(&#39;{{ loc.id }}&#39;, &#39;{{ loc.code }}&#39;, &#39;{{ loc.name }}&#39;, &#39;{{ loc.address }}&#39;, &#39;{{ loc.company_code }}&#39;, &#39;{{ loc.latitude }}&#39;, &#39;{{ loc.longitude }}&#39;, &#39;{{ loc.radius }}&#39;, &#39;{{ loc.is_active }}&#39;)"><i class="bi bi-pencil"></i></button>   
+                            <a href="/settings/locations/delete/{{ loc.id }}" class="btn btn-sm btn-light border text-danger" onclick="return confirm('คุณต้องการลบสถานที่ทำงานนี้ใช่หรือไม่?');"><i class="bi bi-trash"></i></a>
+                        </td>    
+                    </tr>
+                    {% endfor %}
+                    {% else %}
+                    <tr>
+                        <td colspan="7" class="text-center text-muted py-5">ยังไม่มีข้อมูลสถานที่ทำงาน</td>
+                    </tr>
+                    {% endif %}
+                </tbody>   
+            </table>    
+        </div>    
+    </div>    
 </div>
 
-<!-- Modal สำหรับเพิ่ม/แก้ไขสถานที่ -->
-<div class="modal fade" id="locationModal" tabindex="-1" aria-labelledby="locationModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg">
+<!-- Modal เพิ่มสถานที่ทำงาน -->
+<div class="modal fade" id="addLocationModal" tabindex="-1">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable">
         <div class="modal-content">
-            <form id="locationForm" method="POST" action="">
-                <div class="modal-header bg-primary text-white">
-                    <h5 class="modal-title" id="locationModalLabel">เพิ่มสถานที่ทำงาน</h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            <form id="locationForm" action="/settings/locations/add" method="POST">
+                <div class="modal-header py-2 px-3">
+                    <h6 class="modal-title fw-bold">เพิ่มสถานที่ทำงาน</h6>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
-                <div class="modal-body">
-                    <input type="hidden" id="locationId" name="location_id">
-                    
-                    <div class="mb-3">
-                        <label for="name" class="form-label fw-bold">ชื่อสถานที่ <span class="text-danger">*</span></label>
-                        <input type="text" class="form-control" id="name" name="name" required placeholder="เช่น สำนักงานใหญ่, สาขาเชียงใหม่">
-                    </div>
-
-                    <div class="mb-3">
-                        <label for="address" class="form-label fw-bold">ที่อยู่</label>
-                        <textarea class="form-control" id="address" name="address" rows="2" placeholder="ระบุรายละเอียดที่อยู่"></textarea>
-                    </div>
-
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
-                            <label for="latitude" class="form-label fw-bold">ละติจูด (Latitude) <span class="text-danger">*</span></label>
-                            <input type="text" class="form-control" id="latitude" name="latitude" required placeholder="เช่น 13.736717">
+                <div class="modal-body p-3" style="font-size: 0.85rem;">
+                    <div class="row g-2 mb-2">
+                        <div class="col-md-6">
+                            <label class="form-label small fw-bold">บริษัท *</label>
+                            <select class="form-select form-select-sm" name="company_code" required>
+                                <option value="" disabled selected>-- เลือกบริษัท --</option>
+                                {% for comp in companies %}
+                                <option value="{{ comp.code }}">{{ comp.code }} - {{ comp.name_th }}</option>
+                                {% endfor %}
+                            </select>
                         </div>
-                        <div class="col-md-6 mb-3">
-                            <label for="longitude" class="form-label fw-bold">ลองจิจูด (Longitude) <span class="text-danger">*</span></label>
-                            <input type="text" class="form-control" id="longitude" name="longitude" required placeholder="เช่น 100.560686">
+                        <div class="col-md-4">
+                            <label class="form-label small fw-bold">รหัสสถานที่ *</label>
+                            <input type="text" class="form-control form-control-sm" name="code" required>
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label small fw-bold">ลำดับ</label>
+                            <input type="number" class="form-control form-control-sm" name="display_order" value="0">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label small fw-bold">ชื่อสถานที่ *</label>
+                            <input type="text" class="form-control form-control-sm" name="name" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label small">โทรศัพท์</label>
+                            <input type="text" class="form-control form-control-sm" name="phone">
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label small">ที่อยู่</label>
+                            <textarea class="form-control form-control-sm" name="address" rows="2"></textarea>
                         </div>
                     </div>
-
-                    <div class="mb-3">
-                        <button type="button" class="btn btn-outline-secondary btn-sm" onclick="getCurrentLocation()">
-                            <i class="fas fa-map-marker-alt me-1"></i> ดึงพิกัดจากตำแหน่งปัจจุบันของฉัน
-                        </button>
-                    </div>
-
-                    <div class="mb-3">
-                        <label for="radius" class="form-label fw-bold">รัศมีการเช็คชื่อ (เมตร) <span class="text-danger">*</span></label>
-                        <input type="number" class="form-control" id="radius" name="radius" value="100" min="10" required>
-                        <div class="form-text">ระยะห่างสูงสุดที่อนุญาตให้พนักงานกดเช็คชื่อได้</div>
-                    </div>
-
-                    <div class="mb-3 form-check">
-                        <input type="checkbox" class="form-check-input" id="is_active" name="is_active" checked>
-                        <label class="form-check-label" for="is_active">เปิดใช้งานสถานที่นี้</label>
+                    <hr class="text-muted my-2">
+                    <p class="small fw-bold text-secondary mb-1">พิกัดสำหรับลงเวลา</p>
+                    <div class="row g-2 mb-2 align-items-end">
+                        <div class="col-md-4">
+                            <label class="form-label small">ละติจูด</label>
+                            <input type="text" class="form-control form-control-sm" id="lat-input" name="latitude">
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label small">ลองจิจูด</label>
+                            <input type="text" class="form-control form-control-sm" id="lng-input" name="longitude">
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label small">รัศมี (เมตร)</label>
+                            <input type="number" class="form-control form-control-sm" name="radius" value="150">
+                        </div>
+                        <div class="col-12 mt-1">
+                            <button type="button" class="btn btn-outline-secondary btn-sm" id="get-location-btn">
+                                <i class="bi bi-crosshair"></i> ใช้พิกัดปัจจุบันของเครื่องนี้
+                            </button>
+                        </div>
+                        <div class="col-12 mt-3">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="is_active" value="true" checked id="addActive">
+                                <label class="form-check-label fw-bold" for="addActive">เปิดใช้งาน</label>
+                            </div>
+                        </div>
                     </div>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">ยกเลิก</button>
-                    <button type="submit" class="btn btn-primary">บันทึกข้อมูล</button>
+                <div class="modal-footer py-2 bg-light">
+                    <button type="button" class="btn btn-light border btn-sm px-3" data-bs-dismiss="modal">ยกเลิก</button>
+                    <button type="submit" class="btn btn-orange btn-sm px-3 text-white">บันทึก</button>
                 </div>
             </form>
         </div>
     </div>
 </div>
-{% endblock %}
-
-{% block extra_js %}
-<script>
-    // ฟังก์ชันแสดงกล่องข้อความแจ้งเตือนแทนการใช้ alert()
-    function showNotification(message, type = 'success') {
-        const container = document.getElementById('alertContainer');
-        container.innerHTML = `
-            <div class="alert alert-${type} alert-dismissible fade show" role="alert">
-                ${message}
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-            </div>
-        `;
-        setTimeout(() => {
-            const alertElement = container.querySelector('.alert');
-            if (alertElement) {
-                let alert = new bootstrap.Alert(alertElement);
-                alert.close();
-            }
-        }, 4000);
-    }
-
-    // รีเซ็ตฟอร์มเมื่อกดปุ่มเพิ่มใหม่
-    function resetForm() {
-        document.getElementById('locationForm').reset();
-        document.getElementById('locationId').value = '';
-        document.getElementById('locationModalLabel').innerText = 'เพิ่มสถานที่ทำงาน';
-        document.getElementById('is_active').checked = true;
-    }
-
-    // โหลดข้อมูลเข้าฟอร์มเมื่อกดแก้ไข
-    function editLocation(id, name, address, lat, lng, radius, isActive) {
-        document.getElementById('locationId').value = id;
-        document.getElementById('name').value = name;
-        document.getElementById('address').value = address;
-        document.getElementById('latitude').value = lat;
-        document.getElementById('longitude').value = lng;
-        document.getElementById('radius').value = radius;
-        document.getElementById('is_active').checked = isActive;
-        
-        document.getElementById('locationModalLabel').innerText = 'แก้ไขสถานที่ทำงาน';
-        
-        var myModal = new bootstrap.Modal(document.getElementById('locationModal'));
-        myModal.show();
-    }
-
-    // ฟังก์ชันดึงพิกัด GPS ปัจจุบันของผู้ใช้งาน
-    function getCurrentLocation() {
-        if (navigator.geolocation) {
-            navigator.geolocation.getCurrentPosition(function(position) {
-                document.getElementById('latitude').value = position.coords.latitude;
-                document.getElementById('longitude').value = position.coords.longitude;
-                showNotification('ดึงพิกัดตำแหน่งปัจจุบันสำเร็จ!', 'success');
-            }, function(error) {
-                showNotification('ไม่สามารถดึงตำแหน่งได้ กรุณาตรวจสอบการอนุญาตใช้งาน GPS: ' + error.message, 'danger');
-            });
-        } else {
-            showNotification('เบราว์เซอร์ของคุณไม่รองรับการระบุตำแหน่ง Geolocation', 'warning');
-        }
-    }
-
-    // ฟังก์ชันลบข้อมูลสถานที่แบบไม่ใช้ confirm()
-    function deleteLocation(id) {
-        if (window.confirm ? confirm('คุณต้องการลบสถานที่นี้ใช่หรือไม่?') : true) {
-            // ดำเนินการส่งคำขอไปยัง Backend (สามารถปรับเปลี่ยนเส้นทาง URL ตามต้องการ)
-            showNotification('ลบข้อมูลสถานที่รอดำเนินการ (ID: ' + id + ')', 'info');
-        }
-    }
-</script>
 {% endblock %}

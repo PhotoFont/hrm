@@ -165,7 +165,7 @@
 </div>
 {% endblock %}
 
-{% for loc in locations %}
+{% comment %} {% for loc in locations %}
 <div class="modal fade"
      id="editLocationModal{{ loc.id }}"
      tabindex="-1">
@@ -353,7 +353,7 @@
     </div>
 
 </div>
-{% endfor %}
+{% endfor %} {% endcomment %}
 
 {% block extra_js %}
 <script>

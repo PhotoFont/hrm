@@ -165,7 +165,7 @@
 </div>
 {% endblock %}
 
-{% for loc in locations %}
+{% comment %} {% for loc in locations %}
 <div class="modal fade"
      id="editLocationModal{{ loc.id }}"
      tabindex="-1">
@@ -353,7 +353,7 @@
     </div>
 
 </div>
-{% endfor %}
+{% endfor %} {% endcomment %}
 
 {% block extra_js %}
 <script>
@@ -449,7 +449,7 @@
                  
     });    
 </script>
-<!-- Modal สำหรับแก้ไขข้อมูล -->
+{% comment %} <!-- Modal สำหรับแก้ไขข้อมูล -->
 <div id="editLocationModal" class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center z-50">
     <div class="bg-white rounded-lg p-6 w-full max-w-lg shadow-xl">
         <h3 class="text-lg font-bold mb-4">แก้ไขสถานที่ทำงาน</h3>
@@ -494,7 +494,7 @@
             </div>
         </form>
     </div>
-</div>
+</div> {% endcomment %}
 
 <script>
 function openEditModal(id, code, name, address, companyCode, lat, lng, radius, isActive) {

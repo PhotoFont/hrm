@@ -24,6 +24,7 @@
                 <small class="text-muted">สาขาหรือจุดปฏิบัติงาน ใช้กำหนดพิกัดสำหรับลงเวลาแบบ GPS</small>
             </div>
             <div class="d-flex gap-2">
+                <input type="text" class="form-control form-control-sm" placeholder="ค้นหา..." style="width: 200px;">
                 <button class="btn btn-orange btn-sm text-white" data-bs-toggle="modal" data-bs-target="#addLocationModal">+ เพิ่มสถานที่</button>
             </div>
         </div>
@@ -45,22 +46,41 @@
                     {% if locations %}
                     {% for loc in locations %}
                     <tr>
-                        <td class="fw-bold">{{ loc.code }}</td>                        
+                        <td class="fw-bold">{{ loc.code }}</td>
+                         
                         <td>
                             <div class="fw-bold">{{ loc.name }}</div>
-                            <small class="text-muted">{{ loc.address or "-" }}</small>
-                        </td>                   
-                        <td>{{ loc.company_code }}</td>                         
-                        <td><span class="small font-monospace">{{ loc.latitude or "-" }},{{ loc.longitude or "-" }}</span></td>
-                        <td>{{ loc.radius }} ม.</td>
-                        <td>{% if loc.is_active %}<span class="badge bg-success bg-opacity-10 text-success px-3 py-2 rounded-pill">ใช้งาน</span>
-                            {% else %}<span class="badge bg-secondary bg-opacity-10 text-secondary px-3 py-2 rounded-pill">ปิดใช้งาน</span>{% endif %}
+                            <small class="text-muted">
+                            {{ loc.address or "-" }}
+                        </small>
                         </td>
+                     
+                        <td>{{ loc.company_code }}</td>
+                         
+                        <td>
+                        <span class="small font-monospace">
+                        {{ loc.latitude or "-" }},
+                        {{ loc.longitude or "-" }}
+                        </span>
+                        </td>
+                     
+                    <td>{{ loc.radius }} ม.</td>
+                     
+                    <td>
+                    {% if loc.is_active %}
+                    <span class="badge bg-success bg-opacity-10 text-success px-3 py-2 rounded-pill">
+                    ใช้งาน
+                    </span>
+                    {% else %}
+                    <span class="badge bg-secondary bg-opacity-10 text-secondary px-3 py-2 rounded-pill">
+                    ปิดใช้งาน
+                    </span>
+                    {% endif %}
+                    </td>
                      
                     <td class="text-end">
                     <!-- ปุ่มแก้ไข -->
-                    <!-- <button type="button" class="px-2 py-1 bg-blue-50 text-blue-600 rounded hover:bg-blue-100 transition text-sm font-medium" onclick="openEditModal(&#39;{{ loc.id }}&#39;, &#39;{{ loc.code }}&#39;, &#39;{{ loc.name }}&#39;, &#39;{{ loc.address }}&#39;, &#39;{{ loc.company_code }}&#39;, &#39;{{ loc.latitude }}&#39;, &#39;{{ loc.longitude }}&#39;, &#39;{{ loc.radius }}&#39;, &#39;{{ loc.is_active }}&#39;)"> -->
-                    <button class="btn btn-sm btn-light" data-bs-toggle="modal" data-bs-target="#editLocationModal">    
+                    <button type="button" class="px-2 py-1 bg-blue-50 text-blue-600 rounded hover:bg-blue-100 transition text-sm font-medium" onclick="openEditModal(&#39;{{ loc.id }}&#39;, &#39;{{ loc.code }}&#39;, &#39;{{ loc.name }}&#39;, &#39;{{ loc.address }}&#39;, &#39;{{ loc.company_code }}&#39;, &#39;{{ loc.latitude }}&#39;, &#39;{{ loc.longitude }}&#39;, &#39;{{ loc.radius }}&#39;, &#39;{{ loc.is_active }}&#39;)">
                     <i class="bi bi-pencil"></i>
                     </button>
                     <!-- ปุ่มลบ -->
@@ -95,7 +115,7 @@
                     <h6 class="modal-title fw-bold">เพิ่มสถานที่ทำงาน</h6>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
-                {% comment %} <div class="modal-body p-3" style="font-size: 0.85rem;">
+                <div class="modal-body p-3" style="font-size: 0.85rem;">
                     <div class="row g-2 mb-2">
                         <div class="col-md-6">
                             <label class="form-label small fw-bold">บริษัท *</label>
@@ -140,7 +160,7 @@
                         </div>
                         <div class="col-md-4">
                             <label class="form-label small">รัศมี (เมตร)</label>
-                            <input type="number" class="form-control form-control-sm" name="radius" value="50">
+                            <input type="number" class="form-control form-control-sm" name="radius" value="150">
                         </div>
                         <div class="col-12 mt-1">
                             <button type="button" class="btn btn-outline-secondary btn-sm" id="get-location-btn">
@@ -154,7 +174,7 @@
                             </div>
                         </div>
                     </div>
-                </div> {% endcomment %}
+                </div>
                 <div class="modal-footer py-2 bg-light">
                     <button type="button" class="btn btn-light border btn-sm px-3" data-bs-dismiss="modal">ยกเลิก</button>
                     <button type="submit" class="btn btn-orange btn-sm px-3 text-white">บันทึก</button>
@@ -450,7 +470,7 @@
     });    
 </script>
 <!-- Modal สำหรับแก้ไขข้อมูล -->
-<div class="modal fade" id="editLocationModal" tabindex="-1">
+<div id="editLocationModal" class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center z-50">
     <div class="bg-white rounded-lg p-6 w-full max-w-lg shadow-xl">
         <h3 class="text-lg font-bold mb-4">แก้ไขสถานที่ทำงาน</h3>
         
@@ -513,5 +533,5 @@ function openEditModal(id, code, name, address, companyCode, lat, lng, radius, i
 function closeEditModal() {
     document.getElementById('editLocationModal').classList.add('hidden');
 }
-</script> 
+</script>
 {% endblock %}

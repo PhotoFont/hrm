@@ -450,11 +450,11 @@
     });    
 </script>
 <!-- Modal สำหรับแก้ไขข้อมูล -->
-<div id="editLocationModal" class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center z-50">
-    <div class="bg-white rounded-lg p-6 w-full max-w-lg shadow-xl">
+<div class="modal fade" id="editLocationModal">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable">
         <h3 class="text-lg font-bold mb-4">แก้ไขสถานที่ทำงาน</h3>
         
-        <form id="editLocationForm" method="POST">
+        {% comment %} <form id="editLocationForm" method="POST">
             <input type="hidden" id="edit_id" name="id">
             
             <div class="mb-3">
@@ -492,7 +492,7 @@
                 <button type="button" onclick="closeEditModal()" class="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400">ยกเลิก</button>
                 <button type="submit" class="px-4 py-2 bg-orange-600 text-white rounded hover:bg-orange-700">บันทึกการแก้ไข</button>
             </div>
-        </form>
+        </form> {% endcomment %}
     </div>
 </div>
 

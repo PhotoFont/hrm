@@ -1,16 +1,18 @@
 {% extends "layout.html" %}
+
 {% block title %}ตั้งค่าสถานที่ทำงาน - Human and Resource{% endblock %}
+
 {% block header_title %}ตั้งค่าระบบ{% endblock %}
 
 {% block content %}
 <div class="container-fluid px-0">
     <h4 class="fw-bold mb-1">ตั้งค่า</h4>
     <p class="text-muted small mb-3">ข้อมูลพื้นฐาน ผู้ใช้ สิทธิ์ และเงื่อนไขทั้งหมดของระบบรวมอยู่ที่นี่</p>
-
+    
     <ul class="nav nav-tabs mb-4">
         <li class="nav-item"><a class="nav-link text-secondary" href="/settings/company">ข้อมูลบริษัท</a></li>
         <li class="nav-item"><a class="nav-link active fw-bold text-dark border-bottom border-3 border-orange" href="/settings/locations">สถานที่ทำงาน</a></li>
-        <li class="nav-item"><a class="nav-link text-secondary" href="#">ฝ่าย/แผนก</a></li>
+        <li class="nav-item"><a class="nav-link text-secondary" href="#">ฝ่าย / แผนก</a></li>
         <li class="nav-item"><a class="nav-link text-secondary" href="#">ตำแหน่ง</a></li>
         <li class="nav-item"><a class="nav-link text-secondary" href="#">ฟิลด์เพิ่มเติมพนักงาน</a></li>
     </ul>
@@ -21,9 +23,13 @@
                 <h5 class="fw-bold mb-1">สถานที่ทำงาน</h5>
                 <small class="text-muted">สาขาหรือจุดปฏิบัติงาน ใช้กำหนดพิกัดสำหรับลงเวลาแบบ GPS</small>
             </div>
+            <div class="d-flex gap-2">
+                <button class="btn btn-orange btn-sm text-white" data-bs-toggle="modal" data-bs-target="#addLocationModal">+ เพิ่มสถานที่</button>
+            </div>
         </div>
+
         <div class="table-responsive">
-            <table class"table-light align-middle">
+            <table class="table align-middle">
                 <thead class="table-light text-secondary small">
                     <tr>
                         <th>รหัส</th>
@@ -33,46 +39,51 @@
                         <th>รัศมี</th>
                         <th>สถานะ</th>
                         <th class="text-end">จัดการ</th>
-                    </tr>    
+                    </tr>
                 </thead>
                 <tbody>
                     {% if locations %}
-                    {% for loc in location %}
+                    {% for loc in locations %}
                     <tr>
-                        <td class="fw-bold">{{ loc.code }}</td>
+                        <td class="fw-bold">{{ loc.code }}</td>                        
                         <td>
                             <div class="fw-bold">{{ loc.name }}</div>
-                            <small class"text-muted">
-                            {{ loc.address or "-" }}
-                            </small>
+                            <small class="text-muted">{{ loc.address or "-" }}</small>
+                        </td>                   
+                        <td>{{ loc.company_code }}</td>                         
+                        <td><span class="small font-monospace">{{ loc.latitude or "-" }},{{ loc.longitude or "-" }}</span></td>
+                        <td>{{ loc.radius }} ม.</td>
+                        <td>{% if loc.is_active %}<span class="badge bg-success bg-opacity-10 text-success px-3 py-2 rounded-pill">ใช้งาน</span>
+                            {% else %}<span class="badge bg-secondary bg-opacity-10 text-secondary px-3 py-2 rounded-pill">ปิดใช้งาน</span>{% endif %}
                         </td>
-                        <td>{{ loc.company_code }}</td>
-                        <td>
-                            <span class="small font-monospace">
-                                {{ loc.latitude or "-" }},
-                                {{ loc.longitude or "-" }}
-                            </span>
-                        </td>
-                        <td>{{ loc.radius }} ม. </td>
-                        <td>{% if loc.is_active %}<span class="badge bg-success bg-opacity-10 text-success px-3 py-2 rounded-pill">ใช้งาน</span>
-                            {% else %} <span class="badge bg-secondary bg-opacity-10 text-secondary px-3 py-2 rounded-pill">ปิดใช้งาน</span>
-                            {% endif %}
-                        </td>  
-                        <td class="text-end">
-                            <button type="button" class="px-2 py-1 bg-blue-50 text-blue-600 rounded hover:bg-blue-100 transition text-sm font-medium" onclick="openEditModal(&#39;{{ loc.id }}&#39;, &#39;{{ loc.code }}&#39;, &#39;{{ loc.name }}&#39;, &#39;{{ loc.address }}&#39;, &#39;{{ loc.company_code }}&#39;, &#39;{{ loc.latitude }}&#39;, &#39;{{ loc.longitude }}&#39;, &#39;{{ loc.radius }}&#39;, &#39;{{ loc.is_active }}&#39;)"><i class="bi bi-pencil"></i></button>   
-                            <a href="/settings/locations/delete/{{ loc.id }}" class="btn btn-sm btn-light border text-danger" onclick="return confirm('คุณต้องการลบสถานที่ทำงานนี้ใช่หรือไม่?');"><i class="bi bi-trash"></i></a>
-                        </td>    
+                     
+                    <td class="text-end">
+                    <!-- ปุ่มแก้ไข -->
+                    <!-- <button type="button" class="px-2 py-1 bg-blue-50 text-blue-600 rounded hover:bg-blue-100 transition text-sm font-medium" onclick="openEditModal(&#39;{{ loc.id }}&#39;, &#39;{{ loc.code }}&#39;, &#39;{{ loc.name }}&#39;, &#39;{{ loc.address }}&#39;, &#39;{{ loc.company_code }}&#39;, &#39;{{ loc.latitude }}&#39;, &#39;{{ loc.longitude }}&#39;, &#39;{{ loc.radius }}&#39;, &#39;{{ loc.is_active }}&#39;)"> -->
+                    <button class="btn btn-sm btn-light" data-bs-toggle="modal" data-bs-target="#editLocationModal">    
+                    <i class="bi bi-pencil"></i>
+                    </button>
+                    <!-- ปุ่มลบ -->
+                    <a
+                        href="/settings/locations/delete/{{ loc.id }}"
+                        class="btn btn-sm btn-light border text-danger"
+                        onclick="return confirm('คุณต้องการลบสถานที่ทำงานนี้ใช่หรือไม่?');">
+                        <i class="bi bi-trash"></i>
+                    </a>
+                    </td>
                     </tr>
                     {% endfor %}
                     {% else %}
                     <tr>
-                        <td colspan="7" class="text-center text-muted py-5">ยังไม่มีข้อมูลสถานที่ทำงาน</td>
+                    <td colspan="7" class="text-center text-muted py-5">
+                    ยังไม่มีข้อมูลสถานที่ทำงาน
+                    </td>
                     </tr>
                     {% endif %}
-                </tbody>   
-            </table>    
-        </div>    
-    </div>    
+                </tbody>
+            </table>
+        </div>
+    </div>
 </div>
 
 <!-- Modal เพิ่มสถานที่ทำงาน -->
@@ -129,7 +140,7 @@
                         </div>
                         <div class="col-md-4">
                             <label class="form-label small">รัศมี (เมตร)</label>
-                            <input type="number" class="form-control form-control-sm" name="radius" value="150">
+                            <input type="number" class="form-control form-control-sm" name="radius" value="50">
                         </div>
                         <div class="col-12 mt-1">
                             <button type="button" class="btn btn-outline-secondary btn-sm" id="get-location-btn">
@@ -153,6 +164,7 @@
     </div>
 </div>
 {% endblock %}
+
 {% for loc in locations %}
 <div class="modal fade"
      id="editLocationModal{{ loc.id }}"
@@ -342,24 +354,6 @@
 
 </div>
 {% endfor %}
-<script>
-function openEditModal(id, code, name, address, companyCode, lat, lng, radius, isActive) {
-    document.getElementById('edit_id').value = id;
-    document.getElementById('edit_code').value = code;
-    document.getElementById('edit_name').value = name;
-    document.getElementById('edit_address').value = address;
-    document.getElementById('edit_lat').value = lat;
-    document.getElementById('edit_lng').value = lng;
-    document.getElementById('edit_radius').value = radius;
-    
-    document.getElementById('editLocationForm').action = `/settings/locations/update/${id}`;
-    document.getElementById('editLocationModal').classList.remove('hidden');
-}
-
-function closeEditModal() {
-    document.getElementById('editLocationModal').classList.add('hidden');
-}
-</script>
 
 {% block extra_js %}
 <script>
@@ -455,7 +449,6 @@ function closeEditModal() {
                  
     });    
 </script>
-
 <!-- Modal สำหรับแก้ไขข้อมูล -->
 <div id="editLocationModal" class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center z-50">
     <div class="bg-white rounded-lg p-6 w-full max-w-lg shadow-xl">
@@ -501,7 +494,7 @@ function closeEditModal() {
             </div>
         </form>
     </div>
-</div> {% endcomment %}
+</div>
 
 <script>
 function openEditModal(id, code, name, address, companyCode, lat, lng, radius, isActive) {
@@ -520,5 +513,5 @@ function openEditModal(id, code, name, address, companyCode, lat, lng, radius, i
 function closeEditModal() {
     document.getElementById('editLocationModal').classList.add('hidden');
 }
-</script>
+</script> 
 {% endblock %}

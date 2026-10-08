@@ -95,12 +95,16 @@
     </div>
 </div>
 
-<!-- Modal สำหรับ เพิ่ม / แก้ไข สถานที่ทำงาน (ใช้ฟอร์มร่วมกันเพื่อลดความซ้ำซ้อน) -->
+<!-- Modal สำหรับ เพิ่ม / แก้ไข สถานที่ทำงาน -->
 <div class="modal fade" id="locationModal" tabindex="-1">
     <div class="modal-dialog modal-lg modal-dialog-scrollable">
         <div class="modal-content">
             <form id="locationForm" method="POST" action="/settings/locations/add">
                 <input type="hidden" id="location_id" name="id">
+                <!-- ป้องกัน Error ขาด query และ local_kw หาก FastAPI กำหนดไว้เป็น Query Parameter -->
+                <input type="hidden" name="query" value="">
+                <input type="hidden" name="local_kw" value="">
+
                 <div class="modal-header py-2 px-3">
                     <h6 class="modal-title fw-bold" id="modalTitle">เพิ่มสถานที่ทำงาน</h6>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>

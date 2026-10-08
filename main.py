@@ -323,7 +323,7 @@ async def update_location(
     return RedirectResponse(url="/settings/locations", status_code=303)
 
     @app.get("/version")
-async def version():
-    return {
-        "version": "2026-10-05-location-fix"
-    }
+    async def version():
+        return {
+            "version": "2026-10-05-location-fix"
+        }

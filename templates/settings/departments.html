@@ -9,12 +9,32 @@
     <h4 class="fw-bold mb-1">องค์กรและโครงสร้าง</h4>
     <p class="text-muted small mb-3">โครงสร้างหน่วยงาน บริษัท และหน่วยงานย่อยรองรับหลายชั้น</p>
     
-    <ul class="nav nav-tabs mb-4">
-        <li class="nav-item"><a class="nav-link text-secondary" href="/settings/company">ข้อมูลบริษัท</a></li>
-        <li class="nav-item"><a class="nav-link text-secondary" href="/settings/locations">สถานที่ทำงาน</a></li>
-        <li class="nav-item"><a class="nav-link active fw-bold text-dark border-bottom border-3 border-orange" href="/settings/departments">ฝ่าย / แผนก</a></li>
-        <li class="nav-item"><a class="nav-link text-secondary" href="#">ตำแหน่ง</a></li>
-        <li class="nav-item"><a class="nav-link text-secondary" href="#">ฟิลด์เพิ่มเติมพนักงาน</a></li>
+    <ul class="nav nav-pills gap-2 mb-4">
+        <li class="nav-item">
+            <a class="nav-link text-secondary bg-light px-3 py-2 border {{ 'active bg-orange text-white' if active_menu == 'company_settings' else '' }}" href="/settings/company">
+                <i class="bi bi-building me-1"></i> ข้อมูลบริษัท
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link text-secondary bg-light px-3 py-2 border {{ 'active bg-orange text-white' if active_menu == 'locations' else '' }}" href="/settings/locations">
+                <i class="bi bi-geo-alt me-1"></i> สถานที่ทำงาน
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link text-secondary bg-light px-3 py-2 border {{ 'active bg-orange text-white' if active_menu == 'departments' else '' }}" href="/settings/departments">
+                <i class="bi bi-diagram-3 me-1"></i> ฝ่าย / แผนก
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link text-secondary bg-light px-3 py-2 border" href="#">
+                <i class="bi bi-person-badge me-1"></i> ตำแหน่ง
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link text-secondary bg-light px-3 py-2 border" href="#">
+                <i class="bi bi-ui-checks me-1"></i> ฟิลด์เพิ่มเติมพนักงาน
+            </a>
+        </li>
     </ul>
 
     <div class="card border-0 shadow-sm p-4">

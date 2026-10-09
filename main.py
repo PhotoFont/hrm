@@ -5,6 +5,7 @@ from fastapi.templating import Jinja2Templates
 from sqlalchemy import create_engine, Column, String, Integer, Boolean, Float
 from sqlalchemy.orm import declarative_base, sessionmaker, Session
 from typing import Optional
+from sqlalchemy import Column, Integer, String, Boolean, Text
 
 app = FastAPI(title="Human and Resource")
 templates = Jinja2Templates(directory="templates")

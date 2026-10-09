@@ -322,8 +322,104 @@ async def delete_location(
         status_code=303
     )
 
-@app.get("/version")
-async def version():
-    return {
-    "version": "2026-10-09-location-fix5"
-    }
+# --- เพิ่ม Model สำหรับ Department (ฝ่าย / แผนก) ---
+class DepartmentModel(Base):
+    __tablename__ = "departments"
+    
+    id = Column(Integer, primary_key=True, index=True)
+    code = Column(String, unique=True, index=True, nullable=False)
+    name = Column(String, nullable=False)
+    company_code = Column(String, index=True, nullable=False)
+    parent_id = Column(Integer, nullable=True)  # สำหรับรองรับโครงสร้างหลายชั้น (สังกัดภายใน)
+    cost_center = Column(String, nullable=True)
+    display_order = Column(Integer, default=0)
+    is_active = Column(Boolean, default=True)
+
+# สร้างตารางอัตโนมัติ (ตารางใหม่จะถูกสร้างเพิ่มโดยไม่กระทบตารางเดิม)
+Base.metadata.create_all(bind=engine)
+
+@app.get("/settings/departments", response_class=HTMLResponse)
+async def list_departments(
+    request: Request,
+    db: Session = Depends(get_db)
+):
+    departments = db.query(DepartmentModel).order_by(DepartmentModel.display_order.asc()).all()
+    companies = db.query(CompanyModel).filter(CompanyModel.is_active == True).order_by(CompanyModel.display_order.asc()).all()
+    
+    return templates.TemplateResponse(
+        request,
+        "settings/departments.html",
+        {
+            "active_menu": "departments",
+            "departments": departments,
+            "companies": companies,
+        }
+    )
+
+@app.post("/settings/departments/add")
+async def add_department(
+    company_code: str = Form(...),
+    code: str = Form(...),
+    name: str = Form(...),
+    parent_id: Optional[int] = Form(None),
+    cost_center: Optional[str] = Form(None),
+    display_order: int = Form(0),
+    is_active: Optional[str] = Form(None),
+    db: Session = Depends(get_db)
+):
+    exists = db.query(DepartmentModel).filter(DepartmentModel.code == code).first()
+    if not exists:
+        dept = DepartmentModel(
+            company_code=company_code,
+            code=code,
+            name=name,
+            parent_id=parent_id if parent_id else None,
+            cost_center=cost_center,
+            display_order=display_order,
+            is_active=bool(is_active)
+        )
+        db.add(dept)
+        db.commit()
+    return RedirectResponse(url="/settings/departments", status_code=303)
+
+@app.post("/settings/departments/update/{dept_id}")
+async def update_department(
+    dept_id: int,
+    company_code: str = Form(...),
+    code: str = Form(...),
+    name: str = Form(...),
+    parent_id: Optional[int] = Form(None),
+    cost_center: Optional[str] = Form(None),
+    display_order: int = Form(0),
+    is_active: bool = Form(False),
+    db: Session = Depends(get_db)
+):
+    dept = db.query(DepartmentModel).filter(DepartmentModel.id == dept_id).first()
+    if dept:
+        dept.company_code = company_code
+        dept.code = code
+        dept.name = name
+        dept.parent_id = parent_id if parent_id else None
+        dept.cost_center = cost_center
+        dept.display_order = display_order
+        dept.is_active = is_active
+        db.commit()
+    return RedirectResponse(url="/settings/departments", status_code=303)
+
+@app.get("/settings/departments/delete/{dept_id}")
+async def delete_department(
+    dept_id: int,
+    db: Session = Depends(get_db)
+):
+    dept = db.query(DepartmentModel).filter(DepartmentModel.id == dept_id).first()
+    if dept:
+        db.delete(dept)
+        db.commit()
+    return RedirectResponse(url="/settings/departments", status_code=303)
+
+
+# @app.get("/version")
+# async def version():
+#     return {
+#     "version": "2026-10-09-location-fix5"
+#     }

@@ -6,19 +6,20 @@ block content %}
   <p class="text-muted small mb-3">
     ข้อมูลพื้นฐาน ผู้ใช้ สิทธิ์ และเงื่อนไขทั้งหมดของระบบรวมอยู่ที่นี่
   </p>
+  
   <ul class="nav nav-pills gap-2 mb-4">
         <li class="nav-item">
-            <a class="nav-link text-secondary bg-light px-3 py-2 border {{ 'active bg-orange text-white' if active_menu == 'company_settings' else '' }}" href="/settings/company">
+            <a class="nav-link bg-light px-3 py-2 border {{ 'active bg-orange text-white fw-bold' if active_menu == 'company_settings' else 'text-secondary' }}" href="/settings/company">
                 <i class="bi bi-building me-1"></i> ข้อมูลบริษัท
             </a>
         </li>
         <li class="nav-item">
-            <a class="nav-link text-secondary bg-light px-3 py-2 border {{ 'active bg-orange text-white' if active_menu == 'locations' else '' }}" href="/settings/locations">
+            <a class="nav-link bg-light px-3 py-2 border {{ 'active bg-orange text-white fw-bold' if active_menu == 'locations' else 'text-secondary' }}" href="/settings/locations">
                 <i class="bi bi-geo-alt me-1"></i> สถานที่ทำงาน
             </a>
         </li>
         <li class="nav-item">
-            <a class="nav-link text-secondary bg-light px-3 py-2 border {{ 'active bg-orange text-white' if active_menu == 'departments' else '' }}" href="/settings/departments">
+            <a class="nav-link bg-light px-3 py-2 border {{ 'active bg-orange text-white fw-bold' if active_menu == 'departments' else 'text-secondary' }}" href="/settings/departments">
                 <i class="bi bi-diagram-3 me-1"></i> ฝ่าย / แผนก
             </a>
         </li>
@@ -33,6 +34,7 @@ block content %}
             </a>
         </li>
     </ul>
+    
   <div class="card border-0 shadow-sm p-4">
     <div class="d-flex justify-content-between align-items-center mb-3">
       <div>

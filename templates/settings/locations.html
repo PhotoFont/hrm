@@ -45,11 +45,11 @@
                     {% if locations %}
                     {% for loc in locations %}
                     <tr>
-                        <td class="fw-bold">{{ loc.code }}</td>                       
+                        <td class="fw-bold">{{ loc.code }}</td>                     
                         <td>
                             <div class="fw-bold">{{ loc.name }}</div>
                             <small class="text-muted">{{ loc.address or "-" }}</small>
-                        </td>                  
+                        </td>                 
                         <td>{{ loc.company_code }}</td>                        
                         <td><span class="small font-monospace">{{ loc.latitude or "-" }}, {{ loc.longitude or "-" }}</span></td>
                         <td>{{ loc.radius }} ม.</td>

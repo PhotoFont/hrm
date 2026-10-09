@@ -292,7 +292,7 @@ async def delete_location(
     )
 
 @app.post("/settings/locations/update/{location_id}")
-async def update_location(
+async def save_new_location(
     location_id: int,
     company_code: str = Form(...),
     code: str = Form(...),

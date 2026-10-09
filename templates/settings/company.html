@@ -1,5 +1,5 @@
-{% extends "layout.html" %} {% block title %}ตั้งค่าข้อมูลบริษัท - Human and
-Resource{% endblock %} {% block header_title %}ตั้งค่าระบบ{% endblock %}
+{% extends "layout.html" %} {% block title %}ตั้งค่าข้อมูลบริษัท - Human and Resource{% endblock %}
+{% block header_title %}ตั้งค่าระบบ{% endblock %}
 {% block content %}
 <style>
     /* บังคับสีปุ่มเมนูเมื่อถูกเลือก (Active) ให้เป็นสีส้มและตัวอักษรสีขาวเสมอ */
@@ -12,7 +12,7 @@ Resource{% endblock %} {% block header_title %}ตั้งค่าระบบ
     }
 </style>
 <div class="container-fluid px-0">
-  <h4 class="fw-bold mb-1">ตั้งค่า</h4>
+  <h4 class="fw-bold mb-1">องค์กรและโครงสร้าง</h4>
   <p class="text-muted small mb-3">
     ข้อมูลพื้นฐาน ผู้ใช้ สิทธิ์ และเงื่อนไขทั้งหมดของระบบรวมอยู่ที่นี่
   </p>
@@ -34,7 +34,7 @@ Resource{% endblock %} {% block header_title %}ตั้งค่าระบบ
         </a>
     </li>
     <li class="nav-item">
-        <a class="nav-link bg-light text-secondary px-3 py-2 border" href="#">
+        <a class="nav-link bg-light text-secondary px-3 py-2 border {{ 'active' if active_menu == 'positions' else '' }}" href="/settings/positions">
             <i class="bi bi-person-badge me-1"></i> ตำแหน่ง
         </a>
     </li>

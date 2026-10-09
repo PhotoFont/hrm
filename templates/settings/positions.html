@@ -1,20 +1,20 @@
 {% extends "layout.html" %}
 
-{% block title %}ฝ่าย / แผนก - Human and Resource{% endblock %}
+{% block title %}ตำแหน่ง - Human and Resource{% endblock %}
 
 {% block header_title %}องค์กรและโครงสร้าง{% endblock %}
 
 {% block content %}
 <style>
-    /* บังคับสีปุ่มเมนูเมื่อถูกเลือก (Active) ให้เป็นสีส้มและตัวอักษรสีขาวเสมอ */
     .nav-pills .nav-link.active, .nav-pills .show > .nav-link {
-        background-color: #fd7e14 !important; /* ปรับโค้ดสีส้มตามธีมของคุณ */
+        background-color: #fd7e14 !important;
         color: #ffffff !important;
     }
     .nav-pills .nav-link.active i {
         color: #ffffff !important;
     }
 </style>
+
 <div class="container-fluid px-0">
     <h4 class="fw-bold mb-1">องค์กรและโครงสร้าง</h4>
     <p class="text-muted small mb-3">โครงสร้างหน่วยงาน บริษัท และหน่วยงานย่อยรองรับหลายชั้น</p>
@@ -41,7 +41,7 @@
             </a>
         </li>
         <li class="nav-item">
-            <a class="nav-link bg-light text-secondary px-3 py-2 border" href="#">
+            <a class="nav-link text-secondary bg-light px-3 py-2 border" href="#">
                 <i class="bi bi-ui-checks me-1"></i> ฟิลด์เพิ่มเติมพนักงาน
             </a>
         </li>
@@ -50,40 +50,40 @@
     <div class="card border-0 shadow-sm p-4">
         <div class="d-flex justify-content-between align-items-center mb-3">
             <div>
-                <h5 class="fw-bold mb-1">ฝ่าย / แผนก</h5>
-                <small class="text-muted">โครงสร้างหน่วยงาน บริษัท รองรับหลายชั้น</small>
+                <h5 class="fw-bold mb-1">ตำแหน่ง</h5>
+                <small class="text-muted">ตำแหน่งงานและระดับ ใช้อ้างอิงในทะเบียนพนักงานและแผนอัตรากำลัง</small>
             </div>
             <div class="d-flex gap-2">
                 <input type="text" id="searchInput" class="form-control form-control-sm" placeholder="ค้นหา..." style="width: 200px;">
-                <button class="btn btn-orange btn-sm text-white" data-bs-toggle="modal" data-bs-target="#deptModal" onclick="openAddModal()">+ เพิ่มแผนก</button>
+                <button class="btn btn-orange btn-sm text-white" data-bs-toggle="modal" data-bs-target="#positionModal" onclick="openAddModal()">+ เพิ่มตำแหน่ง</button>
             </div>
         </div>
 
         <div class="table-responsive">
-            <table class="table align-middle" id="deptTable">
+            <table class="table align-middle" id="positionTable">
                 <thead class="table-light text-secondary small">
                     <tr>
                         <th>รหัส</th>
-                        <th>ชื่อแผนก</th>
-                        <th>สังกัดภายใน</th>
-                        <th>ศูนย์ต้นทุน</th>
+                        <th>ชื่อตำแหน่ง</th>
+                        <th>สังกัด</th>
+                        <th>ระดับ</th>
                         <th>สถานะ</th>
                         <th class="text-end">จัดการ</th>
                     </tr>
                 </thead>
                 <tbody>
-                    {% if departments %}
-                    {% for dept in departments %}
+                    {% if positions %}
+                    {% for pos in positions %}
                     <tr>
-                        <td class="fw-bold">{{ dept.code }}</td>                     
-                        <td><div class="fw-bold">{{ dept.name }}</div></td>                 
+                        <td class="fw-bold">{{ pos.code }}</td>                     
+                        <td><div class="fw-bold">{{ pos.name }}</div></td>                 
                         <td>
-                            {% set parent_dept = departments | selectattr("id", "equalto", dept.parent_id) | first %}
-                            {{ parent_dept.name if parent_dept else "— ระดับบนสุด —" }}
+                            {% set dept = departments | selectattr("id", "equalto", pos.department_id) | first %}
+                            {{ dept.name if dept else "— ไม่ระบุ —" }}
                         </td>                        
-                        <td>{{ dept.cost_center or "-" }}</td>
+                        <td><span class="badge bg-light text-dark border px-2 py-1">ระดับ {{ pos.level }}</span></td>
                         <td>
-                            {% if dept.is_active %}
+                            {% if pos.is_active %}
                             <span class="badge bg-success bg-opacity-10 text-success px-3 py-2 rounded-pill">ใช้งาน</span>
                             {% else %}
                             <span class="badge bg-secondary bg-opacity-10 text-secondary px-3 py-2 rounded-pill">ปิดใช้งาน</span>
@@ -92,17 +92,17 @@
                         <td class="text-end">
                             <button type="button" class="btn btn-sm btn-light border text-secondary" 
                                 onclick="openEditModal(this)"
-                                data-id="{{ dept.id }}"
-                                data-code="{{ dept.code }}"
-                                data-name="{{ dept.name }}"
-                                data-company="{{ dept.company_code }}"
-                                data-parent="{{ dept.parent_id or '' }}"
-                                data-cost="{{ dept.cost_center or '' }}"
-                                data-order="{{ dept.display_order or 0 }}"
-                                data-active="{{ 'true' if dept.is_active else 'false' }}">
+                                data-id="{{ pos.id }}"
+                                data-code="{{ pos.code }}"
+                                data-name="{{ pos.name }}"
+                                data-dept="{{ pos.department_id or '' }}"
+                                data-level="{{ pos.level }}"
+                                data-order="{{ pos.display_order or 0 }}"
+                                data-responsibility="{{ pos.responsibility or '' }}"
+                                data-active="{{ 'true' if pos.is_active else 'false' }}">
                                 <i class="bi bi-pencil"></i>
                             </button>
-                            <a href="/settings/departments/delete/{{ dept.id }}" class="btn btn-sm btn-light border text-danger" onclick="return confirm('คุณต้องการลบแผนกนี้ใช่หรือไม่?');">
+                            <a href="/settings/positions/delete/{{ pos.id }}" class="btn btn-sm btn-light border text-danger" onclick="return confirm('คุณต้องการลบตำแหน่งนี้ใช่หรือไม่?');">
                                 <i class="bi bi-trash"></i>
                             </a>
                         </td>
@@ -111,7 +111,7 @@
                     {% else %}
                     <tr>
                         <td colspan="6" class="text-center text-muted py-5">
-                            ยังไม่มีข้อมูลฝ่าย / แผนก
+                            ยังไม่มีข้อมูลตำแหน่งงาน
                         </td>
                     </tr>
                     {% endif %}
@@ -121,51 +121,45 @@
     </div>
 </div>
 
-<!-- Modal สำหรับ เพิ่ม / แก้ไข แผนก (ตามภาพแนบที่ 2) -->
-<div class="modal fade" id="deptModal" tabindex="-1">
+<!-- Modal สำหรับ เพิ่ม / แก้ไข ตำแหน่ง (ตามภาพแนบที่ 2) -->
+<div class="modal fade" id="positionModal" tabindex="-1">
     <div class="modal-dialog modal-lg modal-dialog-scrollable">
         <div class="modal-content">
-            <form id="deptForm" method="POST" action="/settings/departments/add">
+            <form id="positionForm" method="POST" action="/settings/positions/add">
                 <div class="modal-header py-3 px-4">
-                    <h5 class="modal-title fw-bold" id="modalTitle">เพิ่มแผนก</h5>
+                    <h5 class="modal-title fw-bold" id="modalTitle">เพิ่มตำแหน่ง</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body p-4" style="font-size: 0.9rem;">
                     <div class="row g-3 mb-3">
                         <div class="col-md-6">
-                            <label class="form-label small fw-bold">บริษัท *</label>
-                            <select class="form-select" name="company_code" id="company_code" required>
-                                <option value="" disabled selected>-- เลือกบริษัท --</option>
-                                {% for comp in companies %}
-                                <option value="{{ comp.code }}">{{ comp.code }} - {{ comp.name_th }}</option>
-                                {% endfor %}
-                            </select>
-                        </div>
-                        <div class="col-md-6">
-                            <label class="form-label small fw-bold">สังกัดภายใน</label>
-                            <select class="form-select" name="parent_id" id="parent_id">
-                                <option value="">— ระดับบนสุด —</option>
+                            <label class="form-label small fw-bold">สังกัดแผนก</label>
+                            <select class="form-select" name="department_id" id="department_id">
+                                <option value="">— ไม่ระบุ —</option>
                                 {% for d in departments %}
                                 <option value="{{ d.id }}">{{ d.code }} - {{ d.name }}</option>
                                 {% endfor %}
                             </select>
                         </div>
                         <div class="col-md-4">
-                            <label class="form-label small fw-bold">รหัสแผนก *</label>
+                            <label class="form-label small fw-bold">รหัสตำแหน่ง *</label>
                             <input type="text" class="form-control" name="code" id="code" required>
                         </div>
-                        <div class="col-md-6">
-                            <label class="form-label small fw-bold">ชื่อแผนก *</label>
+                        <div class="col-md-2">
+                            <label class="form-label small fw-bold">ระดับ</label>
+                            <input type="text" class="form-control" name="level" id="level" value="1">
+                        </div>
+                        <div class="col-md-8">
+                            <label class="form-label small fw-bold">ชื่อตำแหน่ง *</label>
                             <input type="text" class="form-control" name="name" id="name" required>
                         </div>
-                        <div class="col-md-2">
+                        <div class="col-md-4">
                             <label class="form-label small fw-bold">ลำดับ</label>
                             <input type="number" class="form-control" name="display_order" id="display_order" value="0">
                         </div>
                         <div class="col-12">
-                            <label class="form-label small fw-bold">ศูนย์ต้นทุน</label>
-                            <input type="text" class="form-control" name="cost_center" id="cost_center">
-                            <small class="text-muted" style="font-size: 0.75rem;">ใช้แยกค่าใช้จ่ายในรายงานเงินเดือน</small>
+                            <label class="form-label small fw-bold">หน้าที่ความรับผิดชอบ</label>
+                            <textarea class="form-control" name="responsibility" id="responsibility" rows="3"></textarea>
                         </div>
                         <div class="col-12 mt-3">
                             <div class="form-check">
@@ -188,39 +182,38 @@
 {% block extra_js %}
 <script>
     function openAddModal() {
-        document.getElementById('modalTitle').innerText = 'เพิ่มแผนก';
-        document.getElementById('deptForm').action = '/settings/departments/add';
+        document.getElementById('modalTitle').innerText = 'เพิ่มตำแหน่ง';
+        document.getElementById('positionForm').action = '/settings/positions/add';
         document.getElementById('code').value = '';
         document.getElementById('code').readOnly = false;
         document.getElementById('name').value = '';
-        document.getElementById('company_code').value = '';
-        document.getElementById('parent_id').value = '';
-        document.getElementById('cost_center').value = '';
+        document.getElementById('department_id').value = '';
+        document.getElementById('level').value = '1';
         document.getElementById('display_order').value = '0';
+        document.getElementById('responsibility').value = '';
         document.getElementById('is_active').checked = true;
     }
 
     function openEditModal(btn) {
-        document.getElementById('modalTitle').innerText = 'แก้ไขแผนก';
+        document.getElementById('modalTitle').innerText = 'แก้ไขตำแหน่ง';
         const id = btn.getAttribute('data-id');
-        document.getElementById('deptForm').action = `/settings/departments/update/${id}`;
+        document.getElementById('positionForm').action = `/settings/positions/update/${id}`;
         document.getElementById('code').value = btn.getAttribute('data-code');
         document.getElementById('code').readOnly = true;
         document.getElementById('name').value = btn.getAttribute('data-name');
-        document.getElementById('company_code').value = btn.getAttribute('data-company');
-        document.getElementById('parent_id').value = btn.getAttribute('data-parent');
-        document.getElementById('cost_center').value = btn.getAttribute('data-cost');
+        document.getElementById('department_id').value = btn.getAttribute('data-dept');
+        document.getElementById('level').value = btn.getAttribute('data-level');
         document.getElementById('display_order').value = btn.getAttribute('data-order');
+        document.getElementById('responsibility').value = btn.getAttribute('data-responsibility');
         document.getElementById('is_active').checked = btn.getAttribute('data-active') === 'true';
 
-        var myModal = new bootstrap.Modal(document.getElementById('deptModal'));
+        var myModal = new bootstrap.Modal(document.getElementById('positionModal'));
         myModal.show();
     }
 
-    // ฟังก์ชันค้นหาข้อมูลในตารางอย่างง่าย
     document.getElementById('searchInput').addEventListener('keyup', function() {
         let filter = this.value.toLowerCase();
-        let rows = document.querySelectorAll('#deptTable tbody tr');
+        let rows = document.querySelectorAll('#positionTable tbody tr');
         rows.forEach(row => {
             let text = row.innerText.toLowerCase();
             row.style.display = text.includes(filter) ? '' : 'none';

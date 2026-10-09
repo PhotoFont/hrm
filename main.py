@@ -417,6 +417,100 @@ async def delete_department(
         db.commit()
     return RedirectResponse(url="/settings/departments", status_code=303)
 
+# --- เพิ่ม Model สำหรับ Position (ตำแหน่งงาน) ---
+class PositionModel(Base):
+    __tablename__ = "positions"
+    
+    id = Column(Integer, primary_key=True, index=True)
+    code = Column(String, unique=True, index=True, nullable=False)
+    name = Column(String, nullable=False)
+    department_id = Column(Integer, nullable=True)  # สังกัดแผนก
+    level = Column(String, default="1")            # ระดับ
+    display_order = Column(Integer, default=0)
+    responsibility = Column(Text, nullable=True)     # หน้าที่ความรับผิดชอบ
+    is_active = Column(Boolean, default=True)
+
+# สร้างตารางอัตโนมัติ (ไม่กระทบตารางเดิม)
+Base.metadata.create_all(bind=engine)
+
+@app.get("/settings/positions", response_class=HTMLResponse)
+async def list_positions(
+    request: Request,
+    db: Session = Depends(get_db)
+):
+    positions = db.query(PositionModel).order_by(PositionModel.display_order.asc()).all()
+    departments = db.query(DepartmentModel).order_by(DepartmentModel.display_order.asc()).all()
+    
+    return templates.TemplateResponse(
+        request,
+        "settings/positions.html",
+        {
+            "active_menu": "positions",
+            "positions": positions,
+            "departments": departments,
+        }
+    )
+
+@app.post("/settings/positions/add")
+async def add_position(
+    code: str = Form(...),
+    name: str = Form(...),
+    department_id: Optional[int] = Form(None),
+    level: str = Form("1"),
+    display_order: int = Form(0),
+    responsibility: Optional[str] = Form(None),
+    is_active: Optional[str] = Form(None),
+    db: Session = Depends(get_db)
+):
+    exists = db.query(PositionModel).filter(PositionModel.code == code).first()
+    if not exists:
+        pos = PositionModel(
+            code=code,
+            name=name,
+            department_id=department_id if department_id else None,
+            level=level,
+            display_order=display_order,
+            responsibility=responsibility,
+            is_active=bool(is_active)
+        )
+        db.add(pos)
+        db.commit()
+    return RedirectResponse(url="/settings/positions", status_code=303)
+
+@app.post("/settings/positions/update/{pos_id}")
+async def update_position(
+    pos_id: int,
+    code: str = Form(...),
+    name: str = Form(...),
+    department_id: Optional[int] = Form(None),
+    level: str = Form("1"),
+    display_order: int = Form(0),
+    responsibility: Optional[str] = Form(None),
+    is_active: bool = Form(False),
+    db: Session = Depends(get_db)
+):
+    pos = db.query(PositionModel).filter(PositionModel.id == pos_id).first()
+    if pos:
+        pos.code = code
+        pos.name = name
+        pos.department_id = department_id if department_id else None
+        pos.level = level
+        pos.display_order = display_order
+        pos.responsibility = responsibility
+        pos.is_active = is_active
+        db.commit()
+    return RedirectResponse(url="/settings/positions", status_code=303)
+
+@app.get("/settings/positions/delete/{pos_id}")
+async def delete_position(
+    pos_id: int,
+    db: Session = Depends(get_db)
+):
+    pos = db.query(PositionModel).filter(PositionModel.id == pos_id).first()
+    if pos:
+        db.delete(pos)
+        db.commit()
+    return RedirectResponse(url="/settings/positions", status_code=303)
 
 # @app.get("/version")
 # async def version():

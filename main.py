@@ -271,6 +271,37 @@ async def add_location(
         status_code=303
     )
 
+@app.post("/settings/locations/update/{location_id}")
+async def update_location(
+    location_id: int,
+    company_code: str = Form(...),
+    code: str = Form(...),
+    name: str = Form(...),
+    address: Optional[str] = Form(None),
+    phone: Optional[str] = Form(None),
+    display_order: int = Form(0),
+    latitude: Optional[str] = Form(None),
+    longitude: Optional[str] = Form(None),
+    radius: int = Form(150),
+    is_active: bool = Form(False),
+    db: Session = Depends(get_db)
+):
+    location = db.query(Location).filter(Location.id == location_id).first()
+    if location:
+        location.company_code = company_code
+        location.code = code
+        location.name = name
+        location.address = address
+        location.phone = phone
+        location.display_order = display_order
+        location.latitude = latitude
+        location.longitude = longitude
+        location.radius = radius
+        location.is_active = is_active
+        db.commit()
+
+    return RedirectResponse(url="/settings/locations", status_code=303)
+
 @app.get("/settings/locations/delete/{location_id}")
 async def delete_location(
     location_id: int,
@@ -291,39 +322,8 @@ async def delete_location(
         status_code=303
     )
 
-@app.post("/settings/locations/update/{location_id}")
-async def save_new_location(
-    location_id: int,
-    company_code: str = Form(...),
-    code: str = Form(...),
-    name: str = Form(...),
-    address: str = Form(None),
-    phone: str = Form(None),
-    display_order: int = Form(0),
-    latitude: str = Form(None),
-    longitude: str = Form(None),
-    radius: int = Form(150),
-    is_active: bool = Form(False),
-    db: Session = Depends(SessionLocal)
-):
-    location = db.query(Location).filter(Location.id == location_id).first()
-    if location:
-        location.company_code = company_code
-        location.code = code
-        location.name = name
-        location.address = address
-        location.phone = phone
-        location.display_order = display_order
-        location.latitude = latitude
-        location.longitude = longitude
-        location.radius = radius
-        location.is_active = is_active
-        db.commit()
-
-    return RedirectResponse(url="/settings/locations", status_code=303)
-
 @app.get("/version")
 async def version():
     return {
-    "version": "2026-10-09-location-fix4"
+    "version": "2026-10-09-location-fix5"
     }

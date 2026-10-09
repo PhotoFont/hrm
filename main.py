@@ -325,5 +325,5 @@ async def update_location(
 @app.get("/version")
 async def version():
     return {
-    "version": "2026-10-09-location-fix3"
+    "version": "2026-10-09-location-fix4"
     }

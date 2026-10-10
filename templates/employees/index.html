@@ -25,6 +25,35 @@
     }
 </style>
 
+<script>
+    // สคริปต์จัดการไฮไลท์แท็บเมื่อมีการคลิกเปลี่ยน
+    const triggerTabList = document.querySelectorAll('#employeeTabs button');
+    triggerTabList.forEach(triggerEl => {
+        const tabTrigger = new bootstrap.Tab(triggerEl);
+        triggerEl.addEventListener('click', event => {
+            event.preventDefault();
+            // ลบสไตล์แอคทีฟออกจากทุกปุ่ม
+            triggerTabList.forEach(btn => {
+                btn.classList.remove('active', 'text-orange', 'border-bottom', 'border-3', 'border-orange');
+                btn.classList.add('text-secondary');
+            });
+            // เพิ่มสไตล์แอคทีฟให้กับปุ่มที่ถูกคลิก
+            triggerEl.classList.add('active', 'text-orange', 'border-bottom', 'border-3', 'border-orange');
+            triggerEl.classList.remove('text-secondary');
+            tabTrigger.show();
+        });
+    });
+
+    document.getElementById('searchInput').addEventListener('keyup', function() {
+        let filter = this.value.toLowerCase();
+        let rows = document.querySelectorAll('#employeeTable tbody tr');
+        rows.forEach(row => {
+            let text = row.innerText.toLowerCase();
+            row.style.display = text.includes(filter) ? '' : 'none';
+        });
+    });
+</script>
+
 <div class="container-fluid px-0">
     {# Banner ด้านบน (ตามภาพแนบที่ 2) #}
     <div class="banner-people mb-4 shadow-sm">
@@ -159,12 +188,23 @@
                 </div>
                 <div class="modal-body p-4" style="font-size: 0.9rem;">
                     {# Tabs ด้านบนของ Modal #}
-                    <ul class="nav nav-tabs mb-4">
-                        <li class="nav-item"><a class="nav-link active fw-bold text-orange border-bottom border-3 border-orange" data-bs-toggle="tab" href="#tab-personal">ข้อมูลส่วนตัว</a></li>
-                        <li class="nav-item"><a class="nav-link text-secondary" data-bs-toggle="tab" href="#tab-address">ที่อยู่และผู้ติดต่อฉุกเฉิน</a></li>
-                        <li class="nav-item"><a class="nav-link text-secondary" data-bs-toggle="tab" href="#tab-employment">การจ้างงาน</a></li>
-                        <li class="nav-item"><a class="nav-link text-secondary" data-bs-toggle="tab" href="#tab-finance">การเงินและราชการ</a></li>
-                        <li class="nav-item"><a class="nav-link text-secondary" data-bs-toggle="tab" href="#tab-extra">ข้อมูลเพิ่มเติม</a></li>
+                    <!-- Tabs ด้านบนของ Modal -->
+                    <ul class="nav nav-tabs mb-4" id="employeeTabs" role="tablist">
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link active fw-bold text-orange border-bottom border-3 border-orange rounded-0 bg-transparent" id="tab-personal-btn" data-bs-toggle="tab" data-bs-target="#tab-personal" type="button" role="tab">ข้อมูลส่วนตัว</button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link fw-bold text-secondary border-0 rounded-0 bg-transparent" id="tab-address-btn" data-bs-toggle="tab" data-bs-target="#tab-address" type="button" role="tab">ที่อยู่และผู้ติดต่อฉุกเฉิน</button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link fw-bold text-secondary border-0 rounded-0 bg-transparent" id="tab-employment-btn" data-bs-toggle="tab" data-bs-target="#tab-employment" type="button" role="tab">การจ้างงาน</button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link fw-bold text-secondary border-0 rounded-0 bg-transparent" id="tab-finance-btn" data-bs-toggle="tab" data-bs-target="#tab-finance" type="button" role="tab">การเงินและราชการ</button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link fw-bold text-secondary border-0 rounded-0 bg-transparent" id="tab-extra-btn" data-bs-toggle="tab" data-bs-target="#tab-extra" type="button" role="tab">ข้อมูลเพิ่มเติม</button>
+                        </li>
                     </ul>
 
                     <div class="tab-content">

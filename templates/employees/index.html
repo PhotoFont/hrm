@@ -112,12 +112,10 @@
                             </div>
                         </td>
                         <td>
-                            {% set pos = positions | selectattr("id", "equalto", emp.position_id) | first %}
-                            {{ pos.name if pos else "-" }}
+                            {{ pos_dict.get(emp.position_id, "-") if emp.position_id else "-" }}
                         </td>
                         <td>
-                            {% set dept = departments | selectattr("id", "equalto", emp.department_id) | first %}
-                            {{ dept.name if dept else "-" }}
+                            {{ dept_dict.get(emp.department_id, "-") if emp.department_id else "-" }}
                         </td>
                         <td>{{ emp.start_date or "-" }}</td>
                         <td>—</td>

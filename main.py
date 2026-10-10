@@ -554,7 +554,10 @@ async def list_employees(
     departments = db.query(DepartmentModel).all()
     positions = db.query(PositionModel).all()
     
-    # คำนวณสถิติ
+    # แปลงเป็น Dictionary เพื่อให้ HTML เรียกใช้งานง่ายและปลอดภัยจาก Error
+    dept_dict = {d.id: d.name for d in departments}
+    pos_dict = {p.id: p.name for p in positions}
+    
     total_emp = len(employees)
     probation_emp = sum(1 for e in employees if e.employment_status == 'probation')
     normal_emp = sum(1 for e in employees if e.employment_status == 'normal')
@@ -566,8 +569,8 @@ async def list_employees(
         {
             "active_menu": "employees",
             "employees": employees,
-            "departments": departments,
-            "positions": positions,
+            "dept_dict": dept_dict,
+            "pos_dict": pos_dict,
             "total_emp": total_emp,
             "probation_emp": probation_emp,
             "normal_emp": normal_emp,

@@ -513,6 +513,137 @@ async def delete_position(
         db.commit()
     return RedirectResponse(url="/settings/positions", status_code=303)
 
+# --- เพิ่ม Model สำหรับ Employee (ทะเบียนพนักงาน) ---
+class EmployeeModel(Base):
+    __tablename__ = "employees"
+    
+    id = Column(Integer, primary_key=True, index=True)
+    emp_code = Column(String, unique=True, index=True, nullable=False) # รหัสพนักงาน เช่น 01-0001
+    prefix = Column(String, nullable=True)     # คำนำหน้า
+    first_name = Column(String, nullable=False) # ชื่อ
+    last_name = Column(String, nullable=False)  # นามสกุล
+    nickname = Column(String, nullable=True)    # ชื่อเล่น
+    first_name_en = Column(String, nullable=True)
+    last_name_en = Column(String, nullable=True)
+    id_card = Column(String, nullable=True)     # เลขบัตรประชาชน
+    birth_date = Column(String, nullable=True)  # วันเกิด
+    gender = Column(String, nullable=True)      # เพศ
+    marital_status = Column(String, nullable=True) # สถานภาพสมรส
+    nationality = Column(String, default="ไทย") # สัญชาติ
+    blood_type = Column(String, nullable=True)  # กรุ๊ปเลือด
+    military_status = Column(String, nullable=True) # สถานะทางทหาร
+    phone = Column(String, nullable=True)       # โทรศัพท์
+    email = Column(String, nullable=True)       # อีเมล
+    line_id = Column(String, nullable=True)     # LINE ID
+    
+    # ข้อมูลการจ้างงาน
+    position_id = Column(Integer, nullable=True) # ตำแหน่ง
+    department_id = Column(Integer, nullable=True) # แผนก
+    start_date = Column(String, nullable=True)   # วันเริ่มงาน
+    employment_status = Column(String, default="probation") # probation (ทดลองงาน), normal (ปกติ), resigned (พ้นสภาพ)
+
+# สร้างตารางอัตโนมัติ (ไม่กระทบตารางเดิม)
+Base.metadata.create_all(bind=engine)
+
+@app.get("/employees", response_class=HTMLResponse)
+async def list_employees(
+    request: Request,
+    db: Session = Depends(get_db)
+):
+    employees = db.query(EmployeeModel).all()
+    departments = db.query(DepartmentModel).all()
+    positions = db.query(PositionModel).all()
+    
+    # คำนวณสถิติ
+    total_emp = len(employees)
+    probation_emp = sum(1 for e in employees if e.employment_status == 'probation')
+    normal_emp = sum(1 for e in employees if e.employment_status == 'normal')
+    resigned_emp = sum(1 for e in employees if e.employment_status == 'resigned')
+    
+    return templates.TemplateResponse(
+        request,
+        "employees/index.html",
+        {
+            "active_menu": "employees",
+            "employees": employees,
+            "departments": departments,
+            "positions": positions,
+            "total_emp": total_emp,
+            "probation_emp": probation_emp,
+            "normal_emp": normal_emp,
+            "resigned_emp": resigned_emp
+        }
+    )
+
+@app.post("/employees/add")
+async def add_employee(
+    emp_code: Optional[str] = Form(None),
+    prefix: Optional[str] = Form(None),
+    first_name: str = Form(...),
+    last_name: str = Form(...),
+    nickname: Optional[str] = Form(None),
+    first_name_en: Optional[str] = Form(None),
+    last_name_en: Optional[str] = Form(None),
+    id_card: Optional[str] = Form(None),
+    birth_date: Optional[str] = Form(None),
+    gender: Optional[str] = Form(None),
+    marital_status: Optional[str] = Form(None),
+    nationality: Optional[str] = Form("ไทย"),
+    blood_type: Optional[str] = Form(None),
+    military_status: Optional[str] = Form(None),
+    phone: Optional[str] = Form(None),
+    email: Optional[str] = Form(None),
+    line_id: Optional[str] = Form(None),
+    position_id: Optional[int] = Form(None),
+    department_id: Optional[int] = Form(None),
+    start_date: Optional[str] = Form(None),
+    employment_status: Optional[str] = Form("probation"),
+    db: Session = Depends(get_db)
+):
+    # ถ้าไม่ได้ใส่รหัสพนักงานมา ให้สร้างอัตโนมัติ
+    if not emp_code or emp_code.strip() == "":
+        count = db.query(EmployeeModel).count()
+        emp_code = f"01-{str(count + 1).zfill(4)}"
+        
+    emp = EmployeeModel(
+        emp_code=emp_code,
+        prefix=prefix,
+        first_name=first_name,
+        last_name=last_name,
+        nickname=nickname,
+        first_name_en=first_name_en,
+        last_name_en=last_name_en,
+        id_card=id_card,
+        birth_date=birth_date,
+        gender=gender,
+        marital_status=marital_status,
+        nationality=nationality,
+        blood_type=blood_type,
+        military_status=military_status,
+        phone=phone,
+        email=email,
+        line_id=line_id,
+        position_id=position_id,
+        department_id=department_id,
+        start_date=start_date,
+        employment_status=employment_status
+    )
+    db.add(emp)
+    db.commit()
+    return RedirectResponse(url="/employees", status_code=303)
+
+@app.get("/employees/delete/{emp_id}")
+async def delete_employee(
+    emp_id: int,
+    db: Session = Depends(get_db)
+):
+    emp = db.query(EmployeeModel).filter(EmployeeModel.id == emp_id).first()
+    if emp:
+        db.delete(emp)
+        db.commit()
+    return RedirectResponse(url="/employees", status_code=303)
+
+
 # @app.get("/version")
 # async def version():
 #     return {

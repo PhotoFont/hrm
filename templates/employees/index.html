@@ -1,0 +1,362 @@
+{% extends "layout.html" %}
+
+{% block title %}ทะเบียนพนักงาน - Human and Resource{% endblock %}
+
+{% block header_title %}ทะเบียนพนักงาน{% endblock %}
+
+{% block content %}
+<style>
+    .banner-people {
+        background: linear-gradient(135deg, #2b1b4e 0%, #3d2263 100%);
+        border-radius: 1rem;
+        color: white;
+        padding: 2rem;
+        position: relative;
+        overflow: hidden;
+    }
+    .btn-orange-custom {
+        background-color: #ff6b35;
+        border-color: #ff6b35;
+        color: white;
+    }
+    .btn-orange-custom:hover {
+        background-color: #e55a24;
+        color: white;
+    }
+</style>
+
+<div class="container-fluid px-0">
+    <!-- Banner ด้านบน (ตามภาพแนบที่ 2) -->
+    <div class="banner-people mb-4 shadow-sm">
+        <div class="row align-items-center">
+            <div class="col-lg-8">
+                <span class="badge bg-white bg-opacity-10 text-white px-2 py-1 mb-2 small"><i class="bi bi-people me-1"></i> PEOPLE HUB</span>
+                <h2 class="fw-bold mb-1">คนเก่งทุกคน อยู่ในที่เดียว</h2>
+                <p class="text-white-50 small mb-3">บริษัท ทีซีพี จำกัด - พนักงานทั้งหมด {{ total_emp }} คน</p>
+                <div class="d-flex flex-wrap gap-2">
+                    <button class="btn btn-light btn-sm text-dark px-3"><i class="bi bi-journal-text me-1"></i> ทะเบียนติดต่อ</button>
+                    <button class="btn btn-light btn-sm text-dark px-3"><i class="bi bi-file-earmark-arrow-up me-1"></i> นำเข้าจาก Excel</button>
+                    <button class="btn btn-light btn-sm text-dark px-3"><i class="bi bi-clock-history me-1"></i> เปิดบัญชีย้อนหลัง</button>
+                    <button class="btn btn-orange-custom btn-sm px-3 shadow-sm" data-bs-toggle="modal" data-bs-target="#employeeModal"><i class="bi bi-plus-lg me-1"></i> + เพิ่มพนักงาน</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- สถิติการ์ด 4 ช่อง (ตามภาพแนบที่ 2) -->
+    <div class="row g-3 mb-4">
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm p-3">
+                <div class="text-muted small mb-1"><i class="bi bi-people me-1"></i> พนักงานปัจจุบัน</div>
+                <h3 class="fw-bold mb-0 text-dark">{{ total_emp }} <span class="fs-6 fw-normal text-muted">คน</span></h3>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm p-3">
+                <div class="text-muted small mb-1"><i class="bi bi-hourglass-split me-1"></i> อยู่ระหว่างทดลองงาน</div>
+                <h3 class="fw-bold mb-0 text-dark">{{ probation_emp }} <span class="fs-6 fw-normal text-muted">คน</span></h3>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm p-3">
+                <div class="text-muted small mb-1"><i class="bi bi-patch-check me-1"></i> บรรจุแล้ว</div>
+                <h3 class="fw-bold mb-0 text-dark">{{ normal_emp }} <span class="fs-6 fw-normal text-muted">คน</span></h3>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm p-3">
+                <div class="text-muted small mb-1"><i class="bi bi-person-dash me-1"></i> พ้นสภาพปีนี้</div>
+                <h3 class="fw-bold mb-0 text-dark">{{ resigned_emp }} <span class="fs-6 fw-normal text-muted">คน</span></h3>
+            </div>
+        </div>
+    </div>
+
+    <!-- ตารางรายชื่อพนักงาน -->
+    <div class="card border-0 shadow-sm p-4">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <div>
+                <h5 class="fw-bold mb-1">รายชื่อพนักงาน</h5>
+                <small class="text-muted">ค้นด้วยรหัส ชื่อ ชื่อเล่น เบอร์โทร หรือเลขบัตรประชาชน</small>
+            </div>
+            <button class="btn btn-outline-secondary btn-sm"><i class="bi bi-filter me-1"></i> ตัวกรอง</button>
+        </div>
+
+        <div class="mb-3">
+            <input type="text" id="searchInput" class="form-control" placeholder="ค้นหาพนักงาน...">
+        </div>
+
+        <div class="table-responsive">
+            <table class="table align-middle" id="employeeTable">
+                <thead class="table-light text-secondary small">
+                    <tr>
+                        <th>รหัส</th>
+                        <th>ชื่อ-นามสกุล</th>
+                        <th>ตำแหน่ง</th>
+                        <th>แผนก</th>
+                        <th>วันเริ่มงาน</th>
+                        <th>อายุงาน</th>
+                        <th>สถานะ</th>
+                        <th class="text-end">จัดการ</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% if employees %}
+                    {% for emp in employees %}
+                    <tr>
+                        <td class="fw-bold text-dark">{{ emp.emp_code }}</td>
+                        <td>
+                            <div class="fw-bold text-dark">{{ emp.prefix or '' }}{{ emp.first_name }} {{ emp.last_name }}</div>
+                            <div class="text-muted" style="font-size: 0.8rem;">
+                                {% if emp.nickname %} ({{ emp.nickname }}) {% endif %}
+                                {% if emp.phone %} <i class="bi bi-telephone ms-1"></i> {{ emp.phone }} {% endif %}
+                            </div>
+                        </td>
+                        <td>
+                            {% set pos = positions | selectattr("id", "equalto", emp.position_id) | first %}
+                            {{ pos.name if pos else "-" }}
+                        </td>
+                        <td>
+                            {% set dept = departments | selectattr("id", "equalto", emp.department_id) | first %}
+                            {{ dept.name if dept else "-" }}
+                        </td>
+                        <td>{{ emp.start_date or "-" }}</td>
+                        <td>—</td>
+                        <td>
+                            {% if emp.employment_status == 'probation' %}
+                            <span class="badge bg-warning bg-opacity-10 text-warning px-3 py-2 rounded-pill">ทดลองงาน</span>
+                            {% elif emp.employment_status == 'normal' %}
+                            <span class="badge bg-success bg-opacity-10 text-success px-3 py-2 rounded-pill">ปกติ</span>
+                            {% else %}
+                            <span class="badge bg-secondary bg-opacity-10 text-secondary px-3 py-2 rounded-pill">พ้นสภาพ</span>
+                            {% endif %}
+                        </td>
+                        <td class="text-end">
+                            <a href="/employees/delete/{{ emp.id }}" class="btn btn-sm btn-light border text-danger" onclick="return confirm('คุณต้องการลบพนักงานคนนี้ใช่หรือไม่?');">
+                                <i class="bi bi-trash"></i>
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                    {% else %}
+                    <tr>
+                        <td colspan="8" class="text-center text-muted py-5">
+                            ยังไม่มีข้อมูลพนักงานในระบบ
+                        </td>
+                    </tr>
+                    {% endif %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Modal เพิ่มพนักงาน (ตามภาพแนบที่ 3) -->
+<div class="modal fade" id="employeeModal" tabindex="-1">
+    <div class="modal-dialog modal-xl modal-dialog-scrollable">
+        <div class="modal-content">
+            <form method="POST" action="/employees/add">
+                <div class="modal-header py-3 px-4">
+                    <h5 class="modal-title fw-bold">เพิ่มพนักงาน</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-4" style="font-size: 0.9rem;">
+                    <!-- Tabs ด้านบนของ Modal -->
+                    <ul class="nav nav-tabs mb-4">
+                        <li class="nav-item"><a class="nav-link active fw-bold text-orange border-bottom border-3 border-orange" data-bs-toggle="tab" href="#tab-personal">ข้อมูลส่วนตัว</a></li>
+                        <li class="nav-item"><a class="nav-link text-secondary" data-bs-toggle="tab" href="#tab-address">ที่อยู่และผู้ติดต่อฉุกเฉิน</a></li>
+                        <li class="nav-item"><a class="nav-link text-secondary" data-bs-toggle="tab" href="#tab-employment">การจ้างงาน</a></li>
+                        <li class="nav-item"><a class="nav-link text-secondary" data-bs-toggle="tab" href="#tab-finance">การเงินและราชการ</a></li>
+                        <li class="nav-item"><a class="nav-link text-secondary" data-bs-toggle="tab" href="#tab-extra">ข้อมูลเพิ่มเติม</a></li>
+                    </ul>
+
+                    <div class="tab-content">
+                        <!-- Tab 1: ข้อมูลส่วนตัว (ตามภาพแนบที่ 3) -->
+                        <div class="tab-pane fade show active" id="tab-personal">
+                            <div class="row g-3">
+                                <div class="col-md-3">
+                                    <label class="form-label small fw-bold">รหัสพนักงาน</label>
+                                    <input type="text" class="form-control" name="emp_code" placeholder="เว้นว่าง = 01-0002">
+                                    <small class="text-muted" style="font-size: 0.75rem;">เว้นว่างให้ระบบออกให้อัตโนมัติ</small>
+                                </div>
+                                <div class="col-md-2">
+                                    <label class="form-label small fw-bold">คำนำหน้า</label>
+                                    <input type="text" class="form-control" name="prefix" placeholder="นาย/นาง/นางสาว">
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="form-label small fw-bold">ชื่อ *</label>
+                                    <input type="text" class="form-control" name="first_name" required>
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="form-label small fw-bold">นามสกุล *</label>
+                                    <input type="text" class="form-control" name="last_name" required>
+                                </div>
+                                <div class="col-md-1">
+                                    <label class="form-label small fw-bold">ชื่อเล่น</label>
+                                    <input type="text" class="form-control" name="nickname">
+                                </div>
+
+                                <div class="col-md-3">
+                                    <label class="form-label small fw-bold">ชื่อ (อังกฤษ)</label>
+                                    <input type="text" class="form-control" name="first_name_en">
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="form-label small fw-bold">นามสกุล (อังกฤษ)</label>
+                                    <input type="text" class="form-control" name="last_name_en">
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="form-label small fw-bold">เลขบัตรประชาชน</label>
+                                    <input type="text" class="form-control" name="id_card">
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="form-label small fw-bold">วันเกิด</label>
+                                    <input type="text" class="form-control" name="birth_date" placeholder="วว/ดด/ปปปป">
+                                </div>
+
+                                <div class="col-md-2">
+                                    <label class="form-label small fw-bold">เพศ</label>
+                                    <select class="form-select" name="gender">
+                                        <option value="">— ไม่ระบุ —</option>
+                                        <option value="ชาย">ชาย</option>
+                                        <option value="หญิง">หญิง</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-2">
+                                    <label class="form-label small fw-bold">สถานภาพสมรส</label>
+                                    <select class="form-select" name="marital_status">
+                                        <option value="">— ไม่ระบุ —</option>
+                                        <option value="โสด">โสด</option>
+                                        <option value="สมรส">สมรส</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="form-label small fw-bold">สัญชาติ</label>
+                                    <input type="text" class="form-control" name="nationality" value="ไทย">
+                                </div>
+                                <div class="col-md-2">
+                                    <label class="form-label small fw-bold">กรุ๊ปเลือด</label>
+                                    <select class="form-select" name="blood_type">
+                                        <option value="">—</option>
+                                        <option value="A">A</option>
+                                        <option value="B">B</option>
+                                        <option value="AB">AB</option>
+                                        <option value="O">O</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="form-label small fw-bold">สถานะทางทหาร</label>
+                                    <select class="form-select" name="military_status">
+                                        <option value="">— ไม่ระบุ —</option>
+                                        <option value="ผ่านการเกณฑ์แล้ว">ผ่านการเกณฑ์แล้ว</v>
+                                        <option value="ยกเว้น">ยกเว้น</option>
+                                    </select>
+                                </div>
+
+                                <div class="col-md-4">
+                                    <label class="form-label small fw-bold">โทรศัพท์</label>
+                                    <input type="text" class="form-control" name="phone">
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label small fw-bold">อีเมล</label>
+                                    <input type="email" class="form-control" name="email">
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label small fw-bold">LINE ID</label>
+                                    <input type="text" class="form-control" name="line_id">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Tab 2: ที่อยู่และผู้ติดต่อฉุกเฉิน -->
+                        <div class="tab-pane fade" id="tab-address">
+                            <p class="text-muted">ข้อมูลที่อยู่ตามทะเบียนบ้าน ที่อยู่ปัจจุบัน และผู้ติดต่อฉุกเฉิน</p>
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label class="form-label small fw-bold">ที่อยู่ตามทะเบียนบ้าน</label>
+                                    <textarea class="form-control" rows="3" name="address_reg"></textarea>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label small fw-bold">ที่อยู่ปัจจุบัน</label>
+                                    <textarea class="form-control" rows="3" name="address_cur"></textarea>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Tab 3: การจ้างงาน -->
+                        <div class="tab-pane fade" id="tab-employment">
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label class="form-label small fw-bold">แผนก</label>
+                                    <select class="form-select" name="department_id">
+                                        <option value="">— เลือกแผนก —</option>
+                                        {% for d in departments %}
+                                        <option value="{{ d.id }}">{{ d.code }} - {{ d.name }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label small fw-bold">ตำแหน่ง</label>
+                                    <select class="form-select" name="position_id">
+                                        <option value="">— เลือกตำแหน่ง —</option>
+                                        {% for p in positions %}
+                                        <option value="{{ p.id }}">{{ p.code }} - {{ p.name }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label small fw-bold">วันเริ่มงาน</label>
+                                    <input type="text" class="form-control" name="start_date" placeholder="วว/ดด/ปปปป">
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label small fw-bold">สถานะการทำงาน</label>
+                                    <select class="form-select" name="employment_status">
+                                        <option value="probation">ทดลองงาน</option>
+                                        <option value="normal">ปกติ (บรรจุแล้ว)</option>
+                                        <option value="resigned">พ้นสภาพ</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Tab 4: การเงินและราชการ -->
+                        <div class="tab-pane fade" id="tab-finance">
+                            <p class="text-muted">ข้อมูลบัญชีธนาคาร ประกันสังคม และภาษี</p>
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label class="form-label small fw-bold">ธนาคาร</label>
+                                    <input type="text" class="form-control" name="bank_name">
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label small fw-bold">เลขที่บัญชี</label>
+                                    <input type="text" class="form-control" name="bank_account">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Tab 5: ข้อมูลเพิ่มเติม -->
+                        <div class="tab-pane fade" id="tab-extra">
+                            <p class="text-muted">ฟิลด์ข้อมูลเพิ่มเติมสำหรับพนักงาน</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer py-3 px-4 bg-light">
+                    <button type="button" class="btn btn-light border px-4" data-bs-dismiss="modal">ยกเลิก</button>
+                    <button type="submit" class="btn btn-orange-custom px-4">บันทึก</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.getElementById('searchInput').addEventListener('keyup', function() {
+        let filter = this.value.toLowerCase();
+        let rows = document.querySelectorAll('#employeeTable tbody tr');
+        rows.forEach(row => {
+            let text = row.innerText.toLowerCase();
+            row.style.display = text.includes(filter) ? '' : 'none';
+        });
+    });
+</script>
+{% endblock %}

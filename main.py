@@ -569,6 +569,8 @@ async def list_employees(
         {
             "active_menu": "employees",
             "employees": employees,
+            "departments": departments,
+            "positions": positions,
             "dept_dict": dept_dict,
             "pos_dict": pos_dict,
             "total_emp": total_emp,

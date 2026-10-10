@@ -5,7 +5,7 @@ from fastapi.templating import Jinja2Templates
 from sqlalchemy import create_engine, Column, String, Integer, Boolean, Float
 from sqlalchemy.orm import declarative_base, sessionmaker, Session
 from typing import Optional
-from sqlalchemy import Column, Integer, String, Boolean, Text
+from sqlalchemy import Column, Integer, String, Boolean, Text, inspect
 from datetime import datetime
 
 app = FastAPI(title="Human and Resource")
@@ -20,6 +20,21 @@ DB_FILE = os.path.join(DATA_DIR, "hrm.db")
 engine = create_engine(f"sqlite:///{DB_FILE}", connect_args={"check_same_thread": False})
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 Base = declarative_base()
+
+from sqlalchemy import inspect, text
+
+# ฟังก์ชันตรวจสอบและเพิ่มคอลัมน์อัตโนมัติ
+def upgrade_db():
+    inspector = inspect(engine)
+    columns = [col['name'] for col in inspector.get_columns('employees')]
+    if 'end_date' not in columns:
+        with engine.connect() as conn:
+            conn.execute(text("ALTER TABLE employees ADD COLUMN end_date VARCHAR(50);"))
+            conn.commit()
+            print("Auto-migrated: Added end_date column to employees table.")
+
+# เรียกใช้งานฟังก์ชันตอนเริ่มโปรแกรม
+upgrade_db()
 
 # โครงสร้างตารางบริษัทในฐานข้อมูล
 class CompanyModel(Base):

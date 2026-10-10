@@ -129,7 +129,7 @@
                             {{ dept_dict.get(emp.department_id, "-") if emp.department_id else "-" }}
                         </td>
                         <td>{{ emp.start_date or "-" }}</td>
-                        <td>{{ emp.duration if emp.duration else "-" }}</td>
+                        <td>{{ emp.duration }}</td>
                         <td>
                             {% if emp.employment_status == 'probation' %}
                             <span class="badge bg-warning bg-opacity-10 text-warning px-3 py-2 rounded-pill">ทดลองงาน</span>

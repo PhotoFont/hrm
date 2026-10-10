@@ -579,7 +579,15 @@ async def list_employees(
     probation_emp = sum(1 for e in employees if e.employment_status == 'probation')
     normal_emp = sum(1 for e in employees if e.employment_status == 'normal')
     resigned_emp = sum(1 for e in employees if e.employment_status == 'resigned')
-    
+
+    # ต้องมีลูปนี้เพื่อคำนวณและแนบค่า emp.duration ให้พนักงานแต่ละคนก่อนส่งไปหน้า HTML
+    for emp in employees:
+        emp.duration = calculate_work_duration(
+            start_date_str=emp.start_date, 
+            end_date_str=getattr(emp, 'end_date', None), 
+            status=emp.employment_status
+        )
+        
     return templates.TemplateResponse(
         request,
         "employees/index.html",
@@ -596,6 +604,7 @@ async def list_employees(
             "resigned_emp": resigned_emp
         }
     )
+    
 
 @app.post("/employees/add")
 async def add_employee(

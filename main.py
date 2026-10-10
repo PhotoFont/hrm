@@ -6,6 +6,7 @@ from sqlalchemy import create_engine, Column, String, Integer, Boolean, Float
 from sqlalchemy.orm import declarative_base, sessionmaker, Session
 from typing import Optional
 from sqlalchemy import Column, Integer, String, Boolean, Text
+from datetime import datetime
 
 app = FastAPI(title="Human and Resource")
 templates = Jinja2Templates(directory="templates")
@@ -541,6 +542,7 @@ class EmployeeModel(Base):
     department_id = Column(Integer, nullable=True) # แผนก
     start_date = Column(String, nullable=True)   # วันเริ่มงาน
     employment_status = Column(String, default="probation") # probation (ทดลองงาน), normal (ปกติ), resigned (พ้นสภาพ)
+    end_date = Column(String(50), nullable=True) # เก็บวันที่พ้นสภาพ (กรณีสถานะเป็น resigned)
 
 # สร้างตารางอัตโนมัติ (ไม่กระทบตารางเดิม)
 Base.metadata.create_all(bind=engine)
@@ -603,6 +605,7 @@ async def add_employee(
     department_id: Optional[int] = Form(None),
     start_date: Optional[str] = Form(None),
     employment_status: Optional[str] = Form("probation"),
+    end_date: Optional[str] = Form(None),
     db: Session = Depends(get_db)
 ):
     # ถ้าไม่ได้ใส่รหัสพนักงานมา ให้สร้างอัตโนมัติ
@@ -631,7 +634,8 @@ async def add_employee(
         position_id=position_id,
         department_id=department_id,
         start_date=start_date,
-        employment_status=employment_status
+        employment_status=employment_status,
+        end_date=end_date
     )
     db.add(emp)
     db.commit()
@@ -648,7 +652,52 @@ async def delete_employee(
         db.commit()
     return RedirectResponse(url="/employees", status_code=303)
 
+def calculate_work_duration(start_date_str, end_date_str=None, status="normal"):
+    if not start_date_str:
+        return "-"
+    try:
+        # แปลงวันเริ่มงาน
+        start_date = datetime.strptime(start_date_str.strip(), "%d/%m/%Y")
+        
+        # ถ้านับถึงปัจจุบัน หรือถ้าพ้นสภาพแต่ไม่มีการระบุวันที่สิ้นสุด ให้ใช้วันนี้
+        # แต่ถ้าพ้นสภาพและมีระบุ "วันที่พ้นสภาพ" (end_date) ให้ใช้วันนั้นเป็นวันสิ้นสุด
+        if status == "resigned" and end_date_str:
+            end_date = datetime.strptime(end_date_str.strip(), "%d/%m/%Y")
+        else:
+            end_date = datetime.now()
+            
+        # ป้องกันกรณีวันสิ้นสุดมาก่อนวันเริ่มงาน
+        if end_date < start_date:
+            return "ข้อมูลวันที่ไม่ถูกต้อง"
+        
+        # คำนวณความต่างของปีและเดือน
+        years = end_date.year - start_date.year
+        months = end_date.month - start_date.month
+        
+        if end_date.day < start_date.day:
+            months -= 1
+        if months < 0:
+            years -= 1
+            months += 12
+            
+        # จัดรูปแบบข้อความแสดงผล
+        result_parts = []
+        if years > 0:
+            result_parts.append(f"{years} ปี")
+        if months > 0 or years == 0:
+            result_parts.append(f"{months} เดือน")
+            
+        duration_text = " ".join(result_parts)
+        
+        # ถ้าเป็นพ้นสภาพ ต่อท้ายด้วยคำว่า (พ้นสภาพ) เพื่อให้สังเกตง่าย
+        if status == "resigned":
+            return f"{duration_text} (พ้นสภาพ)"
+        return duration_text
+        
+    except Exception:
+        return "-"
 
+    
 # @app.get("/version")
 # async def version():
 #     return {

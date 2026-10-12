@@ -736,9 +736,9 @@ async def get_employee_detail(emp_id: int, request: Request, db: Session = Depen
     
     # สังเกตลำดับ: request มาอันแรก, ชื่อไฟล์มาอันที่สอง, ตามด้วย context dict
     return templates.TemplateResponse(
-        request,
-        "employees/detail.html",
+        "employees/detail.html", 
         {
+            "request": request,
             "emp": emp,
             "active_tab": "overview"
         }

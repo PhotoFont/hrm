@@ -721,20 +721,21 @@ def calculate_work_duration(start_date_str, end_date_str=None, status="normal"):
     except Exception:
         return "-"
 
-@app.get("/employees/{emp_id}")
+@app.get("/employees/{emp_id}", response_class=HTMLResponse)
 async def get_employee_detail(emp_id: int, request: Request, db: Session = Depends(get_db)):
     emp = db.query(EmployeeModel).filter(EmployeeModel.id == emp_id).first()
     if not emp:
-        return {"error": "Employee not found"}
+        return RedirectResponse(url="/employees", status_code=303)
     
-    # ส่งข้อมูลแบบ JSON กลับมาดูก่อน เพื่อเช็กว่าข้อมูลมาครบไหม
-    return {
-        "id": emp.id,
-        "emp_code": emp.emp_code,
-        "first_name": emp.first_name,
-        "last_name": emp.last_name,
-        "position_id": emp.position_id
-    }
+    # คำนวณอายุงาน
+    emp.duration = calculate_work_duration(
+        start_date_str=getattr(emp, 'start_date', None),
+        end_date_str=getattr(emp, 'end_date', None),
+        status=getattr(emp, 'employment_status', 'normal')
+    )
+    
+    # ส่งข้อมูลเข้า Template โดยใช้รูปแบบที่ถูกต้องของ FastAPI
+    return templates.TemplateResponse("employees/detail.html", {"request": request, "emp": emp})
 
     
 # @app.get("/version")

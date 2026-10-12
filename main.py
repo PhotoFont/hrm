@@ -723,26 +723,29 @@ def calculate_work_duration(start_date_str, end_date_str=None, status="normal"):
 
 @app.get("/employees/{emp_id}", response_class=HTMLResponse)
 async def get_employee_detail(emp_id: int, request: Request, db: Session = Depends(get_db)):
-    emp = db.query(EmployeeModel).filter(EmployeeModel.id == emp_id).first()
-    if not emp:
-        return RedirectResponse(url="/employees", status_code=303)
-    
-    # คำนวณอายุงาน
-    emp.duration = calculate_work_duration(
-        start_date_str=getattr(emp, 'start_date', None),
-        end_date_str=getattr(emp, 'end_date', None),
-        status=getattr(emp, 'employment_status', 'normal')
-    )
-    
-    # สังเกตลำดับ: request มาอันแรก, ชื่อไฟล์มาอันที่สอง, ตามด้วย context dict
-    return templates.TemplateResponse(
-        "employees/detail.html", 
-        {
-            "request": request,
-            "emp": emp,
-            "active_tab": "overview"
-        }
-    )
+    try:
+        # 1. ค้นหาพนักงาน
+        emp = db.query(EmployeeModel).filter(EmployeeModel.id == emp_id).first()
+        if not emp:
+            return RedirectResponse(url="/employees", status_code=303)
+        
+        # 2. กำหนดค่าเริ่มต้นเพื่อป้องกัน Attribute Error
+        emp.duration = "-"
+        emp.position_name = "พนักงานทั่วไป"
+        emp.department_name = "-"
+        
+        # 3. ส่งข้อมูลเข้า Template
+        return templates.TemplateResponse(
+            "employees/detail.html", 
+            {
+                "request": request,
+                "emp": emp,
+                "active_tab": "overview"
+            }
+        )
+    except Exception as e:
+        print(f"ERROR: {str(e)}")
+        return HTMLResponse(content=f"<h3>Server Error:</h3><pre>{str(e)}</pre>", status_code=500)
 
     
 # @app.get("/version")

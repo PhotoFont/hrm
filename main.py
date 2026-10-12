@@ -1,4 +1,5 @@
 import os
+import traceback
 from fastapi import FastAPI, Request, Form, Depends
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
@@ -723,35 +724,39 @@ def calculate_work_duration(start_date_str, end_date_str=None, status="normal"):
 
 @app.get("/employees/{emp_id}", response_class=HTMLResponse)
 async def get_employee_detail(emp_id: int, request: Request, db: Session = Depends(get_db)):
-    # 1. ค้นหาพนักงาน
-    emp = db.query(EmployeeModel).filter(EmployeeModel.id == emp_id).first()
-    if not emp:
-        return RedirectResponse(url="/employees", status_code=303)
-    
-    # 2. คำนวณอายุงาน
-    emp.duration = calculate_work_duration(
-        start_date_str=getattr(emp, 'start_date', None),
-        end_date_str=getattr(emp, 'end_date', None),
-        status=getattr(emp, 'employment_status', 'normal')
-    )
-    
-    # 3. ดึงชื่อตำแหน่งและแผนก (ถ้ามีตาราง)
-    positions = {p.id: p.name for p in db.query(PositionModel).all()} if 'PositionModel' in globals() else {}
-    departments = {d.id: d.name for d in db.query(DepartmentModel).all()} if 'DepartmentModel' in globals() else {}
-    
-    emp.position_name = positions.get(emp.position_id, "พนักงานทั่วไป")
-    emp.department_name = departments.get(emp.department_id, "-")
+    try:
+        # 1. ค้นหาพนักงาน
+        emp = db.query(EmployeeModel).filter(EmployeeModel.id == emp_id).first()
+        if not emp:
+            return RedirectResponse(url="/employees", status_code=303)
+        
+        # 2. คำนวณอายุงาน
+        emp.duration = calculate_work_duration(
+            start_date_str=getattr(emp, 'start_date', None),
+            end_date_str=getattr(emp, 'end_date', None),
+            status=getattr(emp, 'employment_status', 'normal')
+        )
+        
+        # 3. กำหนดค่าพื้นฐาน
+        emp.position_name = "พนักงานทั่วไป"
+        emp.department_name = "-"
 
-    # 4. ใช้ Jinja2 เรนเดอร์ไฟล์ HTML โดยตรง (ตัดปัญหาเรื่อง TemplateResponse ของ Starlette)
-    template = templates.get_template("employees/detail.html")
-    html_content = template.render({
-        "request": request,
-        "emp": emp,
-        "active_tab": "overview"
-    })
-    
-    return HTMLResponse(content=html_content)
-    
+        # 4. เรนเดอร์ด้วย Jinja2 โดยตรง
+        template = templates.get_template("employees/detail.html")
+        html_content = template.render({
+            "request": request,
+            "emp": emp,
+            "active_tab": "overview"
+        })
+        
+        return HTMLResponse(content=html_content)
+        
+    except Exception as e:
+        # ดึงรายละเอียด Error ทั้งหมดมาแสดงบนหน้าเว็บ
+        error_msg = traceback.format_exc()
+        print("ERROR TRACEBACK:\n", error_msg)
+        return HTMLResponse(content=f"<div style='padding: 20px; font-family: monospace; background: #fff0f0; color: #d00;'><h3>❌ Detailed Server Error:</h3><pre>{error_msg}</pre></div>", status_code=500)
+
 # @app.get("/version")
 # async def version():
 #     return {

@@ -734,8 +734,15 @@ async def get_employee_detail(emp_id: int, request: Request, db: Session = Depen
         status=getattr(emp, 'employment_status', 'normal')
     )
     
-    # ส่งข้อมูลเข้า Template โดยใช้รูปแบบที่ถูกต้องของ FastAPI
-    return templates.TemplateResponse("employees/detail.html", {"request": request, "emp": emp})
+    # สังเกตลำดับ: request มาอันแรก, ชื่อไฟล์มาอันที่สอง, ตามด้วย context dict
+    return templates.TemplateResponse(
+        request,
+        "employees/detail.html",
+        {
+            "emp": emp,
+            "active_tab": "overview"
+        }
+    )
 
     
 # @app.get("/version")

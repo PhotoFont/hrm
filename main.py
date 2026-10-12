@@ -742,11 +742,14 @@ async def get_employee_detail(emp_id: int, request: Request, db: Session = Depen
     emp.position_name = positions.get(emp.position_id, "-")
     emp.department_name = departments.get(emp.department_id, "-")
     
-    return templates.TemplateResponse("employees/detail.html", {
-        "request": request,
-        "emp": emp,
-        "active_tab": "overview"
-    })
+    return templates.TemplateResponse(
+        request, 
+        "employees/detail.html", 
+        {
+            "emp": emp,
+            "active_tab": "overview"
+        }
+    )
 
     
 # @app.get("/version")

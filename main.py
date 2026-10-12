@@ -743,9 +743,9 @@ async def get_employee_detail(emp_id: int, request: Request, db: Session = Depen
     emp.department_name = departments.get(emp.department_id, "-")
     
     return templates.TemplateResponse(
-        request=request,
-        name="employees/detail.html",
-        context={
+        request,
+        "employees/detail.html",
+        {
             "emp": emp,
             "active_tab": "overview"
         }

@@ -721,6 +721,33 @@ def calculate_work_duration(start_date_str, end_date_str=None, status="normal"):
     except Exception:
         return "-"
 
+@app.get("/employees/{emp_id}", response_class=HTMLResponse)
+async def get_employee_detail(emp_id: int, request: Request, db: Session = Depends(get_db)):
+    # 1. ค้นหาพนักงานตาม ID
+    emp = db.query(EmployeeModel).filter(EmployeeModel.id == emp_id).first()
+    if not emp:
+        return RedirectResponse(url="/employees", status_code=303)
+    
+    # 2. คำนวณอายุงาน
+    emp.duration = calculate_work_duration(
+        start_date_str=emp.start_date,
+        end_date_str=getattr(emp, 'end_date', None),
+        status=emp.employment_status
+    )
+    
+    # 3. ดึงชื่อตำแหน่งและแผนกจาก Dictionary หรือ Model
+    positions = {p.id: p.name for p in db.query(PositionModel).all()}
+    departments = {d.id: d.name for d in db.query(DepartmentModel).all()}
+    
+    emp.position_name = positions.get(emp.position_id, "-")
+    emp.department_name = departments.get(emp.department_id, "-")
+    
+    return templates.TemplateResponse("employees/detail.html", {
+        "request": request,
+        "emp": emp,
+        "active_tab": "overview"
+    })
+
     
 # @app.get("/version")
 # async def version():

@@ -1,0 +1,163 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container-fluid py-3">
+    <!-- Header Navigation -->
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <div>
+            <h4 class="fw-bold m-0">ประวัติพนักงาน</h4>
+            <small class="text-muted">บริษัท พีซีพี จำกัด</small>
+        </div>
+        <div>
+            <a href="/employees" class="btn btn-light btn-sm me-1"><i class="bi bi-arrow-left"></i> กลับ</a>
+            <button class="btn btn-light btn-sm me-1"><i class="bi bi-printer"></i> พิมพ์บัตร</button>
+            <button class="btn btn-light btn-sm me-1"><i class="bi bi-file-earmark-text"></i> พิมพ์ทะเบียน</button>
+            <a href="/employees/{{ emp.id }}/edit" class="btn btn-danger btn-sm"><i class="bi bi-pencil-square"></i> แก้ไข</a>
+        </div>
+    </div>
+
+    <!-- Profile Header Card -->
+    <div class="card border-0 shadow-sm mb-3">
+        <div class="card-body">
+            <div class="row align-items-center">
+                <div class="col-auto">
+                    <img src="{{ emp.avatar_url if emp.avatar_url else '/static/images/default-avatar.png' }}" 
+                         class="rounded-3 img-thumbnail" style="width: 90px; height: 90px; object-fit: cover;">
+                </div>
+                <div class="col">
+                    <h5 class="fw-bold mb-1">{{ emp.prefix }}{{ emp.first_name }} {{ emp.last_name }}</h5>
+                    <p class="text-muted mb-1 small">
+                        รหัส: {{ emp.emp_code }} | ชื่อเล่น: {{ emp.nickname or '-' }}
+                    </p>
+                    <p class="text-muted mb-1 small">
+                        {{ emp.position_name }} · {{ emp.department_name }}
+                    </p>
+                    <div>
+                        {% if emp.employment_status == 'probation' %}
+                        <span class="badge bg-warning bg-opacity-10 text-warning rounded-pill">ทดลองงาน</span>
+                        {% elif emp.employment_status == 'normal' %}
+                        <span class="badge bg-success bg-opacity-10 text-success rounded-pill">ปกติ</span>
+                        {% else %}
+                        <span class="badge bg-secondary bg-opacity-10 text-secondary rounded-pill">พ้นสภาพ</span>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="col-auto text-end border-start ps-4">
+                    <div class="small text-muted mb-1">วันเริ่มงาน: <strong class="text-dark">{{ emp.start_date or '-' }}</strong></div>
+                    <div class="small text-muted mb-1">อายุงาน: <strong class="text-dark">{{ emp.duration }}</strong></div>
+                    <div class="small text-muted mb-1">โทรศัพท์: <strong class="text-dark">{{ emp.phone or '-' }}</strong></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Navigation Tabs -->
+    <ul class="nav nav-tabs border-bottom-0 mb-3 fs-6">
+        <li class="nav-item">
+            <a class="nav-link active fw-bold" href="#"><i class="bi bi-person me-1"></i>ภาพรวม</a>
+        </li>
+        <li class="nav-item"><a class="nav-link text-muted" href="#">การทำงาน</a></li>
+        <li class="nav-item"><a class="nav-link text-muted" href="#">การศึกษา</a></li>
+        <li class="nav-item"><a class="nav-link text-muted" href="#">ครอบครัว</a></li>
+        <li class="nav-item"><a class="nav-link text-muted" href="#">เอกสาร</a></li>
+        <li class="nav-item"><a class="nav-link text-muted" href="#">สัญญาจ้าง</a></li>
+        <li class="nav-item"><a class="nav-link text-muted" href="#">ประวัติค่าจ้าง</a></li>
+    </ul>
+
+    <!-- Main Content Area -->
+    <div class="row">
+        <!-- Left: ข้อมูลส่วนตัว -->
+        <div class="col-lg-8">
+            <div class="card border-0 shadow-sm p-4 mb-3">
+                <h6 class="fw-bold border-bottom pb-2 mb-3 text-primary">ข้อมูลส่วนตัว</h6>
+                
+                <div class="row g-3 fs-6">
+                    <div class="col-sm-6">
+                        <span class="text-muted d-inline-block" style="width: 140px;">ชื่อ-นามสกุล:</span>
+                        <span class="fw-medium">{{ emp.prefix }}{{ emp.first_name }} {{ emp.last_name }}</span>
+                    </div>
+                    <div class="col-sm-6">
+                        <span class="text-muted d-inline-block" style="width: 140px;">สถานภาพสมรส:</span>
+                        <span>{{ emp.marital_status or '-' }}</span>
+                    </div>
+
+                    <div class="col-sm-6">
+                        <span class="text-muted d-inline-block" style="width: 140px;">ชื่ออังกฤษ:</span>
+                        <span>{{ emp.first_name_en or '' }} {{ emp.last_name_en or '' }}</span>
+                    </div>
+                    <div class="col-sm-6">
+                        <span class="text-muted d-inline-block" style="width: 140px;">สัญชาติ:</span>
+                        <span>{{ emp.nationality or '-' }}</span>
+                    </div>
+
+                    <div class="col-sm-6">
+                        <span class="text-muted d-inline-block" style="width: 140px;">ชื่อเล่น:</span>
+                        <span>{{ emp.nickname or '-' }}</span>
+                    </div>
+                    <div class="col-sm-6">
+                        <span class="text-muted d-inline-block" style="width: 140px;">กรุ๊ปเลือด:</span>
+                        <span>{{ emp.blood_type or '-' }}</span>
+                    </div>
+
+                    <div class="col-sm-6">
+                        <span class="text-muted d-inline-block" style="width: 140px;">เลขบัตรประชาชน:</span>
+                        <span>{{ emp.id_card or '-' }}</span>
+                    </div>
+                    <div class="col-sm-6">
+                        <span class="text-muted d-inline-block" style="width: 140px;">สถานะทางทหาร:</span>
+                        <span>{{ emp.military_status or '-' }}</span>
+                    </div>
+
+                    <div class="col-sm-6">
+                        <span class="text-muted d-inline-block" style="width: 140px;">วันเกิด:</span>
+                        <span>{{ emp.birth_date or '-' }}</span>
+                    </div>
+                    <div class="col-sm-6">
+                        <span class="text-muted d-inline-block" style="width: 140px;">โทรศัพท์:</span>
+                        <span>{{ emp.phone or '-' }}</span>
+                    </div>
+
+                    <div class="col-sm-6">
+                        <span class="text-muted d-inline-block" style="width: 140px;">เพศ:</span>
+                        <span>{{ 'ชาย' if emp.gender == 'male' else ('หญิง' if emp.gender == 'female' else '-') }}</span>
+                    </div>
+                    <div class="col-sm-6">
+                        <span class="text-muted d-inline-block" style="width: 140px;">อีเมล:</span>
+                        <span>{{ emp.email or '-' }}</span>
+                    </div>
+
+                    <div class="col-sm-6 offset-sm-6">
+                        <span class="text-muted d-inline-block" style="width: 140px;">LINE ID:</span>
+                        <span>{{ emp.line_id or '-' }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Side Sidebar (เส้นทางการทำงาน & รูปประจำตัว) -->
+        <div class="col-lg-4">
+            <div class="card border-0 shadow-sm p-3 mb-3">
+                <h6 class="fw-bold border-bottom pb-2 mb-3">เส้นทางการทำงาน</h6>
+                <ul class="list-unstyled mb-0 small">
+                    <li class="mb-3">
+                        <span class="badge bg-danger rounded-circle p-1 me-1"> </span> 
+                        <strong class="text-muted">{{ emp.start_date or '-' }}</strong>
+                        <div class="fw-bold ms-3">เริ่มงาน</div>
+                        <div class="text-muted ms-3">{{ emp.position_name }}</div>
+                    </li>
+                </ul>
+            </div>
+
+            <div class="card border-0 shadow-sm p-3">
+                <h6 class="fw-bold border-bottom pb-2 mb-3">รูปประจำตัว</h6>
+                <form action="/employees/{{ emp.id }}/upload-avatar" method="post" enctype="multipart/form-data">
+                    <input type="file" name="avatar" class="form-control form-control-sm mb-2" accept="image/*" required>
+                    <button type="submit" class="btn btn-outline-primary btn-sm w-100">
+                        <i class="bi bi-upload"></i> อัปโหลดรูป
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
